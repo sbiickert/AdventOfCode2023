@@ -14,7 +14,7 @@ use AOC::Geometry;
 our @ISA = qw( Exporter );
 #our @EXPORT_OK = qw(g2_make g3_make);
 our @EXPORT = qw(
-	g2_make g2_get g2_set g2_clear g2_extent 
+	g2_make g2_get g2_get_scalar g2_set g2_clear g2_extent 
 	g2_coords g2_coords_with_value g2_histogram 
 	g2_offsets g2_neighbors g2_print
 
@@ -42,6 +42,25 @@ sub g2_get($g2d, $c2d) {
 	my $key = c2_to_str($c2d);
 	my $val = exists( $g2d->[0]{$key} ) ? $g2d->[0]{$key} : $g2d->[1];
 	return $val;
+}
+
+# If the underlying data is array refs or hash refs, return a meaningful scalar
+sub g2_get_scalar($g2d, $c2d) {
+	my $key = c2_to_str($c2d);
+	my $val = g2_get($g2d, $c2d);
+	my $r = ref $val;
+	if ($r eq "") {
+		return $val;
+	}
+	if ($r eq "ARRAY") {
+		# Return item in [0]
+		return $val->[0];
+	}
+	elsif ($r eq "HASH") {
+		# Return item in {"glyph"}
+		return $val->{"glyph"};
+	}
+	return "?";
 }
 
 sub g2_set($g2d, $c2d, $val) {
@@ -109,7 +128,7 @@ sub g2_neighbors($g2d, $c2d) {
 	return @neighbors;
 }
 
-sub g2_print($g2d, $invert_y=0) {
+sub g2_print($g2d, $markers=0, $invert_y=0) {
 	my $e2d = g2_extent($g2d);
 	my $ymin = $e2d->[1];
 	my $ymax = $e2d->[3];
@@ -117,7 +136,12 @@ sub g2_print($g2d, $invert_y=0) {
 		for (my $y = $ymax; $y >= $ymin; $y--) {
 			my @row = ();
 			for (my $x = $e2d->[0]; $x <= $e2d->[2]; $x++) {
-				push( @row, g2_get($g2d, c2_make($x, $y)) );
+				my $c = c2_make($x, $y);
+				my $glyph = g2_get_scalar($g2d, $c);
+				if ($markers && defined $markers->{c2_to_str($c)}) {
+					$glyph = $markers->{c2_to_str($c)};
+				}
+				push( @row, $glyph );
 			}
 			say join(' ', @row);
 		}
@@ -126,7 +150,12 @@ sub g2_print($g2d, $invert_y=0) {
 		for (my $y = $ymin; $y <= $ymax; $y++) {
 			my @row = ();
 			for (my $x = $e2d->[0]; $x <= $e2d->[2]; $x++) {
-				push( @row, g2_get($g2d, c2_make($x, $y)) );
+				my $c = c2_make($x, $y);
+				my $glyph = g2_get_scalar($g2d, $c);
+				if ($markers && defined $markers->{c2_to_str($c)}) {
+					$glyph = $markers->{c2_to_str($c)};
+				}
+				push( @row, $glyph );
 			}
 			say join(' ', @row);
 		}

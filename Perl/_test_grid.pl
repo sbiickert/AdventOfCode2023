@@ -16,7 +16,7 @@ use AOC::Grid;
 use Data::Dumper;
 
 test_grid2d();
-
+test_grid3d();
 
 sub test_grid2d {
 	say "\nTesting Grid2D";
@@ -49,4 +49,21 @@ sub test_grid2d {
 	g2_print($g2d);
 	say 'Histogram of values:';
 	print Dumper(g2_histogram( $g2d ));
+	
+	my $elf = {"glyph" => "E", "type" => "Elf", "HP" => 100};
+	my $gob = {"glyph" => "G", "type" => "Goblin", "HP" => 95};
+	
+	g2_set($g2d, c2_make(1,4), $elf);
+	g2_set($g2d, c2_make(2,4), $gob);
+	g2_print($g2d);
+	print Dumper(g2_get( $g2d, c2_make(2,4)));
+	
+	my $markers = {c2_to_str( c2_make(1,1) ) => "@"};
+	g2_print($g2d, $markers);
+	say "And inverted:";
+	g2_print($g2d, $markers, 1);
+}
+
+sub test_grid3d {
+	say "test_grid3d not implemented."
 }
