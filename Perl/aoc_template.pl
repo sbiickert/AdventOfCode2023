@@ -11,6 +11,7 @@ use lib $local_lib;
 use Modern::Perl 2022;
 use autodie;
 use Data::Dumper;
+use feature 'signatures';
 #use Storable 'dclone';
 
 use AOC::Util;
