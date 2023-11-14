@@ -69,7 +69,8 @@ sub test_grid2d {
 	ok(scalar(@offsets) == 8, 'Checked queen offset count.');
 
 	my @n = g2_neighbors($g2d, $coords[1]);
-	ok(c2_equal($n[0],[1,2]) && c2_equal($n[1],[3,2]) && c2_equal($n[2],[2,1]) && c2_equal($n[3],[2,3]), 'Checked rook neighbours');
+	print Dumper(@n);
+	ok(c2_equal($n[0],[2,1]) && c2_equal($n[1],[3,2]) && c2_equal($n[2],[2,3]) && c2_equal($n[3],[1,2]), 'Checked rook neighbours');
 
 	# g2_to_str g2_print
 	g2_print($g2d);

@@ -1,5 +1,6 @@
 use Modern::Perl 2023;
-use Test::Simple tests => 49;
+use Test::Simple tests => 62;
+use Data::Dumper;
 
 use AOC::Util;
 use AOC::Geometry;
@@ -11,6 +12,7 @@ test_coord3d();
 test_extent1d();
 test_extent2d();
 test_extent3d();
+test_pos2d();
 
 sub test_coord2d {
 	say "\nTesting Coord2D";
@@ -34,6 +36,39 @@ sub test_coord2d {
 
 	ok(approx_equal(c2_distance($c2d, $other), 11.1803398874989), "Distance was within tolerance.");
 	ok(c2_manhattan($c2d, $other) == 15, "Manhattan distance was correct.");
+
+	ok( c2_equal(c2_offset('N'), c2_make(0,-1)), "Tested offset N");
+	ok( c2_equal(c2_offset('<'), c2_make(-1,0)), "Tested offset <");
+	ok( c2_equal(c2_offset('?'), c2_make(0,0)), "Tested offset ?");
+}
+
+sub test_pos2d {
+	say "\nTesting Pos2D";
+	my $p2d = p2_make( c2_origin() );
+	say p2_to_str($p2d);
+	ok(c2_equal( p2_location($p2d), c2_origin() ), 'Tested make - location');
+	ok(p2_direction($p2d) eq 'N', 'Tested make - default direction');
+	ok(c2_equal(p2_offset($p2d), c2_offset('N')), 'Tested make - default offset');
+
+	$p2d = p2_make( c2_make(5,5), '<' );
+	ok(p2_direction($p2d) eq 'W', 'Tested make direction <');
+	$p2d = p2_turn( $p2d, 'CW' );
+	ok(p2_direction($p2d) eq 'N', 'Tested turning CW once.');
+	$p2d = p2_turn( $p2d, 'CCW' );
+	ok(p2_direction($p2d) eq 'W', 'Tested turning CCW once.');
+	for (0..5) {
+		$p2d = p2_turn( $p2d, 'CCW' );
+	}
+	ok(p2_direction($p2d) eq 'E', 'Tested turning CCW six times.');
+
+	$p2d = p2_move_forward($p2d);
+	ok(c2_equal( p2_location($p2d), c2_make(6,5) ), 'Tested moving forward once');
+	$p2d = p2_move_forward($p2d, 4);
+	ok(c2_equal( p2_location($p2d), c2_make(10,5) ), 'Tested moving forward 4');
+
+	my $bad = p2_make( c2_origin(), '?' );
+	my $moved = p2_move_forward( $bad );
+	ok(p2_equal($bad, $moved), "Tested moving with a bad direction.");
 }
 
 sub test_coord3d {

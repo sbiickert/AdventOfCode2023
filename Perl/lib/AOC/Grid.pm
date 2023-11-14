@@ -128,10 +128,10 @@ sub g2_offsets($g2d) {
 
 	my $rule = $g2d->[2];
 	if ($rule eq 'rook' || $rule eq 'queen') {
-		push( @offsets, ([-1,0], [1,0], [0,-1], [0,1]) );
+		push( @offsets, (c2_offset('N'), c2_offset('E'), c2_offset('S'), c2_offset('W')) );
 	}
 	if ($rule eq 'bishop' || $rule eq 'queen') {
-		push( @offsets, ([-1,-1], [1,-1], [-1,1], [1,1]) );
+		push( @offsets, (c2_offset('NW'), c2_offset('NE'), c2_offset('SE'), c2_offset('SW')) );
 	}
 	return @offsets;
 }

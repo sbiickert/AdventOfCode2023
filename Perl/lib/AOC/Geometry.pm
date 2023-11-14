@@ -7,15 +7,19 @@ use lib $directory;
 package AOC::Geometry;
 use Exporter;
 use feature 'signatures';
-use List::Util qw(min max);
+use List::Util qw(min max first);
 #use Data::Dumper;
 #use Storable 'dclone';
 
 our @ISA = qw( Exporter );
 #our @EXPORT_OK = qw(c2_make c3_make);
 our @EXPORT = qw(
-	c2_make c2_to_str c2_from_str c2_origin
+	c2_make c2_offset c2_to_str c2_from_str c2_origin
 	c2_equal c2_add c2_delta c2_distance c2_manhattan
+
+	p2_make p2_equal p2_to_str
+	p2_location p2_direction p2_offset
+	p2_move_forward p2_turn
 
 	c3_make c3_to_str c3_from_str
 	c3_equal c3_add c3_delta c3_distance c3_manhattan
@@ -39,6 +43,38 @@ our @EXPORT = qw(
 # -------------------------------------------------------
 sub c2_make($x, $y) {
 	return [$x, $y];
+}
+
+our %OFFSET_DIRS = ('N' 	=> c2_make( 0,-1),
+					'NE' 	=> c2_make( 1,-1),
+					'E' 	=> c2_make( 1, 0),
+					'SE' 	=> c2_make( 1, 1),
+					'S' 	=> c2_make( 0, 1),
+					'SW' 	=> c2_make(-1, 1),
+					'W' 	=> c2_make(-1, 0),
+					'NW' 	=> c2_make(-1,-1));
+
+our %OFFSET_ALIASES = ('UP'	=> 'N', 'RIGHT' => 'E', 'DOWN' 	=> 'S', 'LEFT' 	=> 'W',
+						'^' => 'N', '>' => 'E', 'v' => 'S', '<' => 'W');
+
+sub c2_offset($dir_str) {
+	my $result;
+	my $resolved = c2_resolve_offset_alias($dir_str);
+	if (exists $OFFSET_DIRS{$resolved}) {
+		my $off = $OFFSET_DIRS{$resolved};
+		$result = c2_make($off->[0], $off->[1]);
+	}
+	else {
+		$result = c2_origin();
+	}
+	return $result;
+}
+
+# Not exported
+sub c2_resolve_offset_alias($dir_str) {
+	my $result = $dir_str;
+	$result = $OFFSET_ALIASES{$dir_str} if exists $OFFSET_ALIASES{$dir_str};
+	return $result;
 }
 
 sub c2_to_str($c2d) {
@@ -78,6 +114,60 @@ sub c2_manhattan($c1, $c2) {
 	return abs($delta->[0]) + abs($delta->[1]);
 }
 
+
+# -------------------------------------------------------
+# Position2D
+#
+# Data model: array reference [x,y,direction]
+# -------------------------------------------------------
+
+sub p2_make($c2d, $dir_str = 'N') {
+	return [$c2d->[0], $c2d->[1], c2_resolve_offset_alias($dir_str)];
+}
+
+sub p2_equal($p1, $p2) {
+	return c2_equal( p2_location($p1), p2_location($p2) ) && (p2_direction($p1) eq p2_direction($p2));
+}
+
+sub p2_to_str($p2d) {
+	return '{' . c2_to_str(p2_location($p2d)) . ' ' . p2_direction($p2d) . '}';
+}
+
+sub p2_location($p2d) {
+	return c2_make($p2d->[0], $p2d->[1]);
+}
+
+sub p2_direction($p2d) {
+	return $p2d->[2];
+}
+
+sub p2_offset($p2d) {
+	return c2_offset( p2_direction( $p2d ) );
+}
+
+sub p2_turn($p2d, $rot_str) {
+	my $step = 0;
+	if ( first { $_ eq $rot_str } ('CW', 'RIGHT', 'R')) { $step = 1; }
+	if ( first { $_ eq $rot_str } ('CCW', 'LEFT', 'L')) { $step = -1; }
+	my @ordered = ('N', 'E', 'S', 'W');
+	my $current_dir = p2_direction($p2d);
+	my $index = first { $ordered[$_] eq $current_dir } 0..$#ordered;
+	if ($index < 0) {
+		# Direction isn't one of NESW
+		return p2_make(p2_location($p2d), $current_dir);
+	}
+	$index = ($index + $step) % 4;
+	return p2_make(p2_location($p2d), $ordered[$index]);
+}
+
+sub p2_move_forward($p2d, $distance = 1) {
+	my $new_loc = p2_location($p2d);
+	my $off = p2_offset($p2d);
+	for (0..$distance-1) {
+		$new_loc = c2_add( $new_loc, $off );
+	}
+	return p2_make( $new_loc, p2_direction($p2d) );
+}
 
 # -------------------------------------------------------
 # Coord3D
