@@ -1,12 +1,11 @@
-#!/usr/bin/env perl
-BEGIN {
-    our $local_lib = $ENV{"HOME"} . '/perl5/lib/perl5';
-}
+use strict;
 
-use lib $local_lib;
+our $directory;
+BEGIN { use Cwd; $directory = cwd; }
+use lib $directory;
 
 package AOC::Grid;
-use Modern::Perl 2022;
+use Modern::Perl 2023;
 use Exporter;
 use feature 'signatures';
 use AOC::Geometry;
@@ -14,9 +13,11 @@ use AOC::Geometry;
 our @ISA = qw( Exporter );
 #our @EXPORT_OK = qw(g2_make g3_make);
 our @EXPORT = qw(
-	g2_make g2_get g2_get_scalar g2_set g2_clear g2_extent 
+	g2_make g2_get_default g2_get_rule
+	
+	g2_get g2_get_scalar g2_set g2_clear g2_extent 
 	g2_coords g2_coords_with_value g2_histogram 
-	g2_offsets g2_neighbors g2_print
+	g2_offsets g2_neighbors g2_print g2_to_str
 
 	g3_make g3_get g3_set g3_clear g3_extent 
 	g3_coords g3_coords_with_value g3_histogram 
@@ -36,6 +37,14 @@ sub g2_make($default, $adj_rule) {
 		die "$adj_rule is not a valid adjacency rule: @RULES";
 	}
 	my $g2d = [{}, $default, $adj_rule, []];
+}
+
+sub g2_get_default($g2d) {
+	return $g2d->[1];
+}
+
+sub g2_get_rule($g2d) {
+	return $g2d->[2];
 }
 
 sub g2_get($g2d, $c2d) {
@@ -66,7 +75,8 @@ sub g2_get_scalar($g2d, $c2d) {
 sub g2_set($g2d, $c2d, $val) {
 	my $key = c2_to_str($c2d);
 	$g2d->[0]{$key} = $val;
-	e2_expand_to_fit( g2_extent($g2d), $c2d );
+	my $expanded = e2_expanded_to_fit( g2_extent($g2d), $c2d );
+	g2_set_extent($g2d, $expanded);
 }
 
 sub g2_clear($g2d, $c2d) {
@@ -75,7 +85,16 @@ sub g2_clear($g2d, $c2d) {
 }
 
 sub g2_extent($g2d) {
-	return $g2d->[3];
+	my $current = $g2d->[3];
+	if (e2_is_empty($current)) {
+		return [];
+	}
+	return e2_make(e2_min($current), e2_max($current));
+}
+
+# Symbol not exported, private
+sub g2_set_extent($g2d, $e2d) {
+	$g2d->[3] = $e2d;
 }
 
 sub g2_coords($g2d) {
@@ -98,8 +117,8 @@ sub g2_coords_with_value($g2d, $val) {
 
 sub g2_histogram($g2d) {
 	my $hist = {};
-	for my $c ( e2_all_coords( $g2d->[3] ) ) {
-		my $val = g2_get($g2d, $c);
+	for my $c ( e2_all_coords( g2_extent($g2d) ) ) {
+		my $val = g2_get_scalar($g2d, $c);
 		$hist->{$val} ++;
 	}
 	return $hist;
@@ -129,6 +148,11 @@ sub g2_neighbors($g2d, $c2d) {
 }
 
 sub g2_print($g2d, $markers=0, $invert_y=0) {
+	print g2_to_str($g2d, $markers, $invert_y);
+}
+
+sub g2_to_str($g2d, $markers=0, $invert_y=0) {
+	my $str = '';
 	my $e2d = g2_extent($g2d);
 	my $ymin = $e2d->[1];
 	my $ymax = $e2d->[3];
@@ -143,7 +167,8 @@ sub g2_print($g2d, $markers=0, $invert_y=0) {
 				}
 				push( @row, $glyph );
 			}
-			say join(' ', @row);
+			push (@row, "\n");
+			$str .= join(' ', @row);
 		}
 	}
 	else {
@@ -157,9 +182,11 @@ sub g2_print($g2d, $markers=0, $invert_y=0) {
 				}
 				push( @row, $glyph );
 			}
-			say join(' ', @row);
+			push (@row, "\n");
+			$str .= join(' ', @row);
 		}
 	}
+	return $str;
 }
 
 

@@ -1,21 +1,22 @@
-#!/usr/bin/env perl
-BEGIN {
-    our $local_lib = $ENV{"HOME"} . '/perl5/lib/perl5';
-}
+package AOC::Geometry;
+use strict;
 
-use lib $local_lib;
+our $directory;
+BEGIN { use Cwd; $directory = cwd; }
+use lib $directory;
 
 package AOC::Geometry;
-use Modern::Perl 2022;
+use Modern::Perl 2023;
 use Exporter;
 use feature 'signatures';
 use List::Util qw(min max);
+#use Data::Dumper;
 #use Storable 'dclone';
 
 our @ISA = qw( Exporter );
 #our @EXPORT_OK = qw(c2_make c3_make);
 our @EXPORT = qw(
-	c2_make c2_to_str c2_from_str 
+	c2_make c2_to_str c2_from_str c2_origin
 	c2_equal c2_add c2_delta c2_distance c2_manhattan
 
 	c3_make c3_to_str c3_from_str 
@@ -24,7 +25,7 @@ our @EXPORT = qw(
 	e1_make e1_contains e1_equal e1_intersect e1_is_empty
 	e1_overlaps e1_to_str e1_union e1_size e1_contains_value
 	
-	e2_make e2_build e2_expand_to_fit e2_to_str
+	e2_make e2_build e2_expanded_to_fit e2_to_str e2_is_empty
 	e2_min e2_max e2_width e2_height e2_area e2_all_coords
 	e2_equal e2_contains e2_intersect e2_union e2_inset
 	
@@ -51,6 +52,10 @@ sub c2_from_str($val) {
 		return c2_make($1, $2);
 	}
 	return 0;
+}
+
+sub c2_origin() {
+	return c2_make(0,0);
 }
 
 sub c2_equal($c1, $c2) {
@@ -200,26 +205,22 @@ sub e2_make($c_min, $c_max) {
 }
 
 sub e2_build(@c_list) {
-	my @data = ();
+	my $ext = [];
 	for my $c ( @c_list ) {
-		e2_expand_to_fit(\@data, $c);
+		$ext = e2_expanded_to_fit($ext, $c);
 	}
-	return \@data;
+	return $ext;
 }
 
-sub e2_expand_to_fit($e2d, $c2d) {
+sub e2_expanded_to_fit($e2d, $c2d) {
 	if (e2_is_empty($e2d)) {
-		$e2d->[0] = $c2d->[0];
-		$e2d->[1] = $c2d->[1];
-		$e2d->[2] = $c2d->[0];
-		$e2d->[3] = $c2d->[1];
+		return [$c2d->[0], $c2d->[1], $c2d->[0], $c2d->[1]];
 	}
-	else {
-		$e2d->[0] = min($e2d->[0], $c2d->[0]);
-		$e2d->[1] = min($e2d->[1], $c2d->[1]);
-		$e2d->[2] = max($e2d->[2], $c2d->[0]);
-		$e2d->[3] = max($e2d->[3], $c2d->[1]);
-	}
+	return [
+		min($e2d->[0], $c2d->[0]),
+		min($e2d->[1], $c2d->[1]),
+		max($e2d->[2], $c2d->[0]),
+		max($e2d->[3], $c2d->[1])];
 }
 
 sub e2_is_empty($e2d) {

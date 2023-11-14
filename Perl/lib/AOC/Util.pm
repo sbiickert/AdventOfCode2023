@@ -1,19 +1,17 @@
-#!/usr/bin/env perl
+use strict;
 
-BEGIN {
-    our $local_lib = $ENV{"HOME"} . '/perl5/lib/perl5';
-}
-
-use lib $local_lib;
+our $directory;
+BEGIN { use Cwd; $directory = cwd; }
+use lib $directory;
 
 package AOC::Util;
-use Modern::Perl 2022;
+use Modern::Perl 2023;
 use Exporter;
 use feature 'signatures';
 
 our @ISA = qw( Exporter );
 #our @EXPORT_OK = qw(a b c);
-our @EXPORT = qw(read_input read_grouped_input);
+our @EXPORT = qw(read_input read_grouped_input approx_equal);
 
 # Read Input
 sub read_input($input_file, $remove_empty_lines = 0) {
@@ -67,6 +65,11 @@ sub read_grouped_input($input_file, $group_index = -1) {
 	}
 	
 	return @groups;
+}
+
+sub approx_equal($float1, $float2, $threshold=0.0001) {
+	my $difference = abs($float1 - $float2);
+	return $difference < $threshold;
 }
 
 1;
