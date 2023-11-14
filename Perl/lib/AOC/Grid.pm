@@ -1,11 +1,10 @@
-use strict;
+use Modern::Perl 2023;
 
 our $directory;
 BEGIN { use Cwd; $directory = cwd; }
 use lib $directory;
 
 package AOC::Grid;
-use Modern::Perl 2023;
 use Exporter;
 use feature 'signatures';
 use AOC::Geometry;
@@ -14,13 +13,13 @@ our @ISA = qw( Exporter );
 #our @EXPORT_OK = qw(g2_make g3_make);
 our @EXPORT = qw(
 	g2_make g2_get_default g2_get_rule
-	
-	g2_get g2_get_scalar g2_set g2_clear g2_extent 
-	g2_coords g2_coords_with_value g2_histogram 
+
+	g2_get g2_get_scalar g2_set g2_clear g2_extent
+	g2_coords g2_coords_with_value g2_histogram
 	g2_offsets g2_neighbors g2_print g2_to_str
 
-	g3_make g3_get g3_set g3_clear g3_extent 
-	g3_coords g3_coords_with_value g3_histogram 
+	g3_make g3_get g3_set g3_clear g3_extent
+	g3_coords g3_coords_with_value g3_histogram
 	g3_offsets g3_neighbors g3_print);
 
 
@@ -126,21 +125,21 @@ sub g2_histogram($g2d) {
 
 sub g2_offsets($g2d) {
 	my @offsets = ();
-	
+
 	my $rule = $g2d->[2];
 	if ($rule eq 'rook' || $rule eq 'queen') {
 		push( @offsets, ([-1,0], [1,0], [0,-1], [0,1]) );
 	}
 	if ($rule eq 'bishop' || $rule eq 'queen') {
 		push( @offsets, ([-1,-1], [1,-1], [-1,1], [1,1]) );
-	}	
+	}
 	return @offsets;
 }
 
 sub g2_neighbors($g2d, $c2d) {
 	my @offsets = g2_offsets($g2d);
 	my @neighbors = ();
-	
+
 	for my $o (@offsets) {
 		push( @neighbors, c2_add( $c2d, $o ));
 	}
@@ -253,7 +252,7 @@ sub g3_histogram($g3d) {
 
 sub g3_offsets($g3d) {
 	my @offsets = ();
-	
+
 	my $rule = $g3d->[2];
 	if ($rule eq 'rook' || $rule eq 'queen') {
 		push( @offsets, ([-1,0,0], [1,0,0], [0,-1,0], [0,1,0], [0,0,-1], [0,0,1]) );
@@ -261,14 +260,14 @@ sub g3_offsets($g3d) {
 	if ($rule eq 'bishop' || $rule eq 'queen') {
 		die "$rule adjacency not implemented.";
 		push( @offsets, ([-1,-1], [1,-1], [-1,1], [1,1]) );
-	}	
+	}
 	return @offsets;
 }
 
 sub g3_neighbors($g3d, $c3d) {
 	my @offsets = g3_offsets($g3d);
 	my @neighbors = ();
-	
+
 	for my $o (@offsets) {
 		push( @neighbors, c3_add( $c3d, $o ));
 	}

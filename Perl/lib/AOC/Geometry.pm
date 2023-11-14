@@ -1,12 +1,10 @@
-package AOC::Geometry;
-use strict;
+use Modern::Perl 2023;
 
 our $directory;
 BEGIN { use Cwd; $directory = cwd; }
 use lib $directory;
 
 package AOC::Geometry;
-use Modern::Perl 2023;
 use Exporter;
 use feature 'signatures';
 use List::Util qw(min max);
@@ -19,16 +17,16 @@ our @EXPORT = qw(
 	c2_make c2_to_str c2_from_str c2_origin
 	c2_equal c2_add c2_delta c2_distance c2_manhattan
 
-	c3_make c3_to_str c3_from_str 
+	c3_make c3_to_str c3_from_str
 	c3_equal c3_add c3_delta c3_distance c3_manhattan
 
 	e1_make e1_contains e1_equal e1_intersect e1_is_empty
 	e1_overlaps e1_to_str e1_union e1_size e1_contains_value
-	
+
 	e2_make e2_build e2_expanded_to_fit e2_to_str e2_is_empty
 	e2_min e2_max e2_width e2_height e2_area e2_all_coords
 	e2_equal e2_contains e2_intersect e2_union e2_inset
-	
+
 	e3_make e3_build e3_expand_to_fit e3_to_str
 	e3_min e3_max e3_width e3_height e3_depth
 	e3_volume e3_all_coords e3_equal e3_contains
@@ -288,25 +286,25 @@ sub e2_intersect($e1, $e2) {
 	my $common_min_y = max($e1->[1], $e2->[1]);
 	my $common_max_y = min($e1->[3], $e2->[3]);
 	if ($common_max_y < $common_min_y) { return []; }
-	
+
 	return [$common_min_x, $common_min_y, $common_max_x, $common_max_y];
 }
 
 sub e2_union($e1, $e2) {
 	my @results = ();
 	if (e2_equal($e1, $e2)) { return ($e1); }
-	
+
 	my $e_int = e2_intersect($e1, $e2);
 	if (e2_is_empty($e_int)) {
 		if (!e2_is_empty($e1)) { push(@results, $e1); }
 		if (!e2_is_empty($e2)) { push(@results, $e2); }
 		return @results;
 	}
-	
+
 	push( @results, $e_int );
 	for my $e ($e1, $e2) {
 		if (e2_equal($e, $e_int)) { next; }
-		
+
 		if ($e->[0] < $e_int->[0]) { # xmin
 			if ($e->[1] < $e_int->[1]) { # ymin
 				push( @results, [$e->[0], $e->[1], $e_int->[0]-1, $e_int->[1]-1] );
@@ -329,7 +327,7 @@ sub e2_union($e1, $e2) {
 			push( @results, [$e_int->[0], $e->[1], $e_int->[2], $e_int->[1]-1] );
 		}
 		if ($e_int->[3] < $e->[3]) { #ymax
-			push( @results, [$e_int->[0], $e_int->[3]+1, $e_int->[2], $e->[3]] );		
+			push( @results, [$e_int->[0], $e_int->[3]+1, $e_int->[2], $e->[3]] );
 		}
 	}
 	return @results;
@@ -337,7 +335,7 @@ sub e2_union($e1, $e2) {
 
 sub e2_inset($e2d, $inset) {
 	my $result = [];
-	$result->[0] = $e2d->[0] + $inset;	
+	$result->[0] = $e2d->[0] + $inset;
 	$result->[1] = $e2d->[1] + $inset;
 	$result->[2] = $e2d->[2] - $inset;
 	$result->[3] = $e2d->[3] - $inset;

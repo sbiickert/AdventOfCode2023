@@ -1,5 +1,4 @@
-use strict;
-use Modern::Perl 2022;
+use Modern::Perl 2023;
 use Test::Simple tests => 23;
 
 use AOC::Geometry;
@@ -21,42 +20,42 @@ sub test_grid2d {
 
 	my @coords = (c2_make(1,1), c2_make(2,2), c2_make(3,3),
 	 c2_make(4,4), c2_make(1,4), c2_make(2,4), c2_make(3,4));
-	
+
 	# g2_set
 	g2_set($g2d, $coords[0], 'A');
 	g2_set($g2d, $coords[1], 'B');
 	g2_set($g2d, $coords[3], 'D');
-	
+
 	my $elf = {"glyph" => "E", "type" => "Elf", "HP" => 100};
 	my $gob = {"glyph" => "G", "type" => "Goblin", "HP" => 95};
-	my $san = ["S", "Santa", 100];                               
+	my $san = ["S", "Santa", 100];
 	g2_set($g2d, $coords[4], $elf);
 	g2_set($g2d, $coords[5], $gob);
 	g2_set($g2d, $coords[6], $san);
-	
+
 	# g2_get
 	ok(g2_get($g2d, $coords[0]) eq 'A', "Testing g2_get");
 	ok(g2_get($g2d, $coords[1]) eq 'B', "Testing g2_get");
 	ok(g2_get($g2d, $coords[2]) eq g2_get_default($g2d), "Testing g2_get");
 	ok(g2_get($g2d, $coords[3]) eq 'D', "Testing g2_get");
-	
-	# g2_get_scalar 
+
+	# g2_get_scalar
 	ok(g2_get_scalar($g2d, $coords[4]) eq 'E', "Testing g2_get_scalar");
 	ok(g2_get_scalar($g2d, $coords[5]) eq 'G', "Testing g2_get_scalar");
 	ok(g2_get_scalar($g2d, $coords[6]) eq 'S', "Testing g2_get_scalar");
-	
+
 	# g2_extent
 	my $e = g2_extent($g2d);
 	ok(c2_equal(e2_min($e), c2_make(1,1)), 'Testing extent min');
 	ok(c2_equal(e2_max($e), c2_make(4,4)), 'Testing extent max');
-	
+
 	# g2_coords g2_coords_with_value
 	my @all = g2_coords($g2d);
 	ok(scalar(@all) == 6, 'Checking returned coords count');
 	my @matching = g2_coords_with_value($g2d, 'B');
 	ok(scalar(@matching) == 1, 'Checking returned coords count');
 	ok(c2_equal($matching[0], $coords[1]), 'Checking returned coord');
-	
+
 	# g2_histogram
 	g2_set($g2d, $coords[2], 'B');
 	my $hist = g2_histogram($g2d);
@@ -68,25 +67,25 @@ sub test_grid2d {
 	ok(scalar(@offsets) == 4, 'Checked rook offset count.');
 	@offsets = g2_offsets(g2_make('.', 'queen'));
 	ok(scalar(@offsets) == 8, 'Checked queen offset count.');
-	
+
 	my @n = g2_neighbors($g2d, $coords[1]);
-	ok(c2_equal($n[0],[1,2]) && c2_equal($n[1],[3,2]) && c2_equal($n[2],[2,1]) && c2_equal($n[3],[2,3]), 'Checked rook neighbours');	
+	ok(c2_equal($n[0],[1,2]) && c2_equal($n[1],[3,2]) && c2_equal($n[2],[2,1]) && c2_equal($n[3],[2,3]), 'Checked rook neighbours');
 
 	# g2_to_str g2_print
 	g2_print($g2d);
 	my $grid_str = g2_to_str($g2d);
 	my $expected = "A . . . \n. B . . \n. . B . \nE G S D \n";
 	ok($grid_str eq $expected, 'Checking grid to string');
-	
+
 	$grid_str = g2_to_str($g2d, 0, 1); # invert y
 	$expected = "E G S D \n. . B . \n. B . . \nA . . . \n";
 	ok($grid_str eq $expected, 'Checking inverted grid to string');
-	
+
 	my %markers = (c2_to_str(c2_make(4,1)) => '*');
 	$grid_str = g2_to_str($g2d, \%markers);
 	$expected = "A . . * \n. B . . \n. . B . \nE G S D \n";
 	ok($grid_str eq $expected, 'Checking inverted grid to string');
-	
+
 	# g2_clear
 	g2_clear($g2d, $coords[2]);
 	ok(g2_get($g2d, $coords[2]) eq '.', 'Checking grid clearing');
