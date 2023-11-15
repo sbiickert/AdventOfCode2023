@@ -1,5 +1,5 @@
 use Modern::Perl 2023;
-use Test::Simple tests => 62;
+use Test::Simple tests => 70;
 use Data::Dumper;
 
 use AOC::Util;
@@ -154,12 +154,24 @@ sub test_extent2d {
 	ok(c2_equal(e2_max($e[2]), c2_make( 4,8)), e2_to_str($e[2]) . " max was correct.");
 	ok(e2_width($e[1]) == 5, e2_to_str($e[1]) . " width was correct.");
 	ok(e2_height($e[1]) == 8, e2_to_str($e[1]) . " height was correct.");
+	ok(e2_width([]) == 0, e2_to_str([]) . " width was zero.");
+	ok(e2_height([]) == 0, e2_to_str([]) . " height was zero.");
 	ok(e2_area($e[1]) == 40, e2_to_str($e[1]) . " area was correct.");
+	ok(e2_area([]) == 0, e2_to_str([]) . " area was zero.");
 
-	# e2_equal e2_contains e2_inset
+	# e2_equal
 	ok(e2_equal($e[2], [-1,1,4,8]), "equality was correct.");
+	ok(e2_equal([], []), "Two empty extents are equal.");
+	ok(!e2_equal([], $e[0]), "One empty extent and one not empty extent are not equal.");
+
+	# e2_contains
 	ok(e2_contains($e[1], $c[1]), e2_to_str($e[1]) . " contains " . c2_to_str($c[1]));
 	ok(e2_contains($e[2], $c[3]), e2_to_str($e[2]) . " contains " . c2_to_str($c[3]));
+
+	# e2_inset
+	ok(e2_equal(e2_inset($e[0], 1), [0,2,1,7]), "Inset extent by 1");
+	ok(e2_is_empty(e2_inset($e[0], 2)), "Inset to negative width is empty.");
+	ok(e2_is_empty(e2_inset([], 1)), "Insetting an empty extent is empty.");
 
 	# e2_intersect
 	ok(e2_equal($e[3], [5,5,10,10]), "Intersect result was correct");

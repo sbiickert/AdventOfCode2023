@@ -13,6 +13,11 @@ our @ISA = qw( Exporter );
 our @EXPORT = qw(read_input read_grouped_input approx_equal);
 
 # Read Input
+
+# Reads the specified file and returns an array of strings.
+
+# If $remove_empty_lines is true, will remove any zero-length lines
+# (after chomp)
 sub read_input($input_file, $remove_empty_lines = 0) {
 	open my $input, '<', $input_file or die "Failed to open input: $!";
 
@@ -66,6 +71,13 @@ sub read_grouped_input($input_file, $group_index = -1) {
 	return @groups;
 }
 
+# Approx Equal
+
+# Avoids the issues with floating point numbers that are close
+# to being equal but are not exactly equal.
+
+# $threshold is the maximum allowable difference between $float1
+# and $float2 for them to be considered equal.
 sub approx_equal($float1, $float2, $threshold=0.0001) {
 	my $difference = abs($float1 - $float2);
 	return $difference < $threshold;

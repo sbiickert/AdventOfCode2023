@@ -8,7 +8,7 @@ package AOC::Geometry;
 use Exporter;
 use feature 'signatures';
 use List::Util qw(min max first);
-#use Data::Dumper;
+# use Data::Dumper;
 #use Storable 'dclone';
 
 our @ISA = qw( Exporter );
@@ -323,10 +323,12 @@ sub e2_to_str($e2d) {
 }
 
 sub e2_min($e2d) {
+	die if e2_is_empty($e2d);
 	return c2_make($e2d->[0], $e2d->[1]);
 }
 
 sub e2_max($e2d) {
+	die if e2_is_empty($e2d);
 	return c2_make($e2d->[2], $e2d->[3]);
 }
 
@@ -356,6 +358,10 @@ sub e2_all_coords($e2d) {
 }
 
 sub e2_equal($e1, $e2) {
+	my $empty1 = e2_is_empty($e1);
+	my $empty2 = e2_is_empty($e2);
+	return 1 if $empty1 && $empty2;
+	return 0 if $empty1 || $empty2;
 	return $e1->[0] == $e2->[0] &&
 			$e1->[1] == $e2->[1] &&
 			$e1->[2] == $e2->[2] &&
@@ -424,12 +430,16 @@ sub e2_union($e1, $e2) {
 }
 
 sub e2_inset($e2d, $inset) {
+	return [] if e2_is_empty($e2d);
+	#print Dumper($e2d);
 	my $result = [];
 	$result->[0] = $e2d->[0] + $inset;
 	$result->[1] = $e2d->[1] + $inset;
 	$result->[2] = $e2d->[2] - $inset;
 	$result->[3] = $e2d->[3] - $inset;
-	die if $result->[2] <= $result->[0] || $result->[3] <= $result->[1];
+
+	# Return an empty extent if the width or height is negative
+	return [] if $result->[2] <= $result->[0] || $result->[3] <= $result->[1];
 	return $result;
 }
 
