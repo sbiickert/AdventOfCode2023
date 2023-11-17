@@ -78,9 +78,10 @@ sub g2_set($g2d, $c2d, $val) {
 	g2_set_extent($g2d, $expanded);
 }
 
-sub g2_clear($g2d, $c2d) {
+sub g2_clear($g2d, $c2d, $reset_extent = 0) {
 	my $key = c2_to_str($c2d);
 	delete $g2d->[0]{$key};
+	g2_reset_extent($g2d) if $reset_extent;
 }
 
 sub g2_extent($g2d) {
@@ -94,6 +95,11 @@ sub g2_extent($g2d) {
 # Symbol not exported, private
 sub g2_set_extent($g2d, $e2d) {
 	$g2d->[3] = $e2d;
+}
+
+# Symbol not exported, private
+sub g2_reset_extent($g2d) {
+	g2_set_extent($g2d, e2_build( g2_coords($g2d) ));
 }
 
 sub g2_coords($g2d) {

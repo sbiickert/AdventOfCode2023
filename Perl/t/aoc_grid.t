@@ -1,5 +1,5 @@
 use Modern::Perl 2023;
-use Test::Simple tests => 23;
+use Test::Simple tests => 25;
 
 use AOC::Geometry;
 use AOC::Grid;
@@ -90,6 +90,11 @@ sub test_grid2d {
 	# g2_clear
 	g2_clear($g2d, $coords[2]);
 	ok(g2_get($g2d, $coords[2]) eq '.', 'Checking grid clearing');
+	my $e_original = g2_extent($g2d);
+	g2_set($g2d, c2_make(100, 100), 'X');
+	ok(c2_equal(e2_max(g2_extent($g2d)), c2_make(100,100)), "Extent after expand is big");
+	g2_clear($g2d, c2_make(100, 100), 1);
+	ok(e2_equal(g2_extent($g2d), $e_original), "Extent after clear is small");
 }
 
 sub test_grid3d {
