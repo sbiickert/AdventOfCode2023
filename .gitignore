@@ -1,3 +1,4 @@
 
 *.pyc
 Perl/.pls-tmp-*
+PHP/vendor
