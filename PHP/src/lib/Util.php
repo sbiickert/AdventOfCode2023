@@ -53,3 +53,11 @@ function read_grouped_input(string $input_file, int $group_index = -1): array {
 	
 	return $groups;
 }
+
+function approxEqual(float $f1, float $f2, float $tolerance=0.0001): bool {
+	return (abs($f1-$f2) < $tolerance);
+}
+
+function trueMod(int $num, int $mod): int {
+	return ($mod + ($num % $mod)) % $mod;
+}

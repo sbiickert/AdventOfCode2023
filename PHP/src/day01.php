@@ -6,7 +6,7 @@ require 'lib/Util.php';
 
 echo "Advent of Code 2023, Day 1: Calorie Counting\n";
 
-$INPUT_DIR = '../../Input/';
+$INPUT_DIR = '../Input/';
 #$INPUT_FILE = 'day01_test.txt';
 $INPUT_FILE = 'day01_challenge.txt';
 $input = read_grouped_input($INPUT_DIR . $INPUT_FILE);

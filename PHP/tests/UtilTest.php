@@ -51,5 +51,14 @@ final class UtilTest extends TestCase
     	$this->assertEmpty($group);
     }
     
+    public function testApproxEqual(): void {
+    	$f1 = 10.0;
+    	$f2 = 9.999999;
+    	$this->assertTrue(approxEqual($f1, $f2));
+    	$f2 = 9.99;
+    	$this->assertFalse(approxEqual($f1, $f2));
+    	$this->assertTrue(approxEqual($f1, $f2, 0.1));
+    }
+    
     protected function tearDown(): void {}
 }
