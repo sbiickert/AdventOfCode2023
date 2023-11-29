@@ -14,29 +14,9 @@ class Day00: AoCSolution {
         self.name = "Test Solution"
         self.emptyLinesIndicateMultipleInputs = true
     }
- 
-	override func solve(_ input: AoCInput) async -> AoCResult {
-		await super.solve(input)
-		listenForVisualizer()
-		let result = await Task {
-			return syncSolve(input)
-		}.value
-		return result
-    }
 	
-	private func syncSolve(_ input: AoCInput) -> AoCResult {
-		let time = 12
-		for i in 1...time {
-			sleep(forTimeInterval: 1) // simulates a blocking operation
-			let percent = CGFloat(i) / CGFloat(time)
-			postVisualizationUpdate(data: percent)
-		}
+	override func solve(_ input: AoCInput) -> AoCResult {
+		super.solve(input)
 		return AoCResult(part1: "hello", part2: "sync")
 	}
-	
-	@objc override func visualizerReady(_ notification: Notification) {
-		super.visualizerReady(notification)
-		postVisualizer(ProgressVisualizer())
-	}
-
 }

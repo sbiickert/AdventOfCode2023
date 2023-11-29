@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import AoC_2023
+//@testable import AoC_2023
 
 final class AoCStringTests: XCTestCase {
 
