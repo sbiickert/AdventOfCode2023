@@ -5,7 +5,7 @@ class Day01: AoCSolution {
         super.init()
         day = 1
         self.name = "Calorie Counting"
-        self.emptyLinesIndicateMultipleInputs = true
+        self.emptyLinesIndicateMultipleInputs = false
     }
     override func solve(_ input: AoCInput) -> AoCResult {
         super.solve(input)
