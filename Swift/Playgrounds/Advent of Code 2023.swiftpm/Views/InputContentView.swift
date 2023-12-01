@@ -24,6 +24,7 @@ struct InputContentView: View {
     }
 }
 
+@available(iOS 16.0, *)
 struct InputContentView_Previews: PreviewProvider {
     static var previews: some View {
         InputContentView(input: AoCInput.inputsFor(solution: AoCSolution.solutions[0])[0])

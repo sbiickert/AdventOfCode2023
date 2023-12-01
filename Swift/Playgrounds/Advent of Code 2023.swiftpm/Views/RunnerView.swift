@@ -48,6 +48,7 @@ struct RunnerView: View {
     }
 }
 
+@available(iOS 16.0, *)
 struct RunnerView_Previews: PreviewProvider {
     static var previews: some View {
         RunnerView(input: AoCInput.inputsFor(solution: AoCSolution.solutions[0])[0])
