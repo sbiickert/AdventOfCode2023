@@ -30,7 +30,6 @@ struct RunnerView: View {
     }
     var body: some View {
         VStack {
-            InputContentView(input: input)
             Button {
                 runner.running = true
                 Task {
@@ -41,6 +40,7 @@ struct RunnerView: View {
             }
             .disabled(runner.running)
             ResultView(result:$runner.result, elapsed: $runner.elapsed)
+            InputContentView(input: input)
         }
         .padding()
         .overlay(progress)

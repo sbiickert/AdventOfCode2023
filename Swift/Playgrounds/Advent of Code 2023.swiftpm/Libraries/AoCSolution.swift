@@ -15,7 +15,7 @@ struct AoCResult {
 class AoCSolution {
     public static var solutions: [AoCSolution] {
         get {
-            return [Day00(), Day01()
+            return [Day00(), Day01(), Day02(), Day03(), Day04()
             ].reversed()
         }
     }

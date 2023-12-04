@@ -9,29 +9,67 @@ class Day01: AoCSolution {
     }
     override func solve(_ input: AoCInput) -> AoCResult {
         super.solve(input)
-        let lines = AoCInput.readInputFile(named: input.fileName, removingEmptyLines: true)
+        let lines = AoCInput.readGroupedInputFile(named: input.fileName)[input.index]
         
-        let sumCalibration = solvePartOne(input: lines)
-        print("Part One: the sum of the calibration values is: \(sumCalibration)")
+        let sumCalibration1 = solvePart(input: lines)
+        print("Part One: the sum of the calibration values is: \(sumCalibration1)")
         
-        //print("Part Two: the number of calories carried by the top 3 elves is \(topThree)")
+        let fixedLines = lines.map(Day01.letterToDigit(line:))
+        let sumCalibration2 = solvePart(input: fixedLines)
+        print("Part Two: the sum of the calibration values is: \(sumCalibration2)")
         
-        return AoCResult(part1: String(sumCalibration), part2: "World")
+        return AoCResult(part1: String(sumCalibration1), part2: String(sumCalibration2))
     }
     
-    private func solvePartOne(input: [String]) -> Int {
+    private func solvePart(input: [String]) -> Int {
         var sum = 0
         let reStart = #/^[^\d]*(\d)/#
         let reEnd = #/(\d)[^\d]*$/#
         for line in input {
-            print(line)
+            //print(line)
             if let mStart = line.firstMatch(of: reStart),
                let mEnd = line.firstMatch(of: reEnd) {
                 let numString = "\(mStart.1)\(mEnd.1)"
-                print(numString)
+                //print(numString)
                 sum += Int(numString)!
             }
         }
         return sum
+    }
+    
+    private static func letterToDigit(line: String) -> String {
+        var result = line
+        //print(line)
+        let reStart = #/^(one|two|three|four|five|six|seven|eight|nine)/#
+        let reEnd = #/(one|two|three|four|five|six|seven|eight|nine)$/#
+        let lookup: Dictionary<String, String> = ["one": "1", "two": "2", "three": "3",
+                                                  "four": "4", "five": "5", "six": "6",
+                                                  "seven": "7", "eight": "8", "nine": "9"]
+        
+        while (!result.isEmpty) { // Safety
+            if result.starts(with: #/\d/#) { break }
+            if let m = result.firstMatch(of: reStart) {
+                let s:String = String(m.1)
+                let digit = lookup[s]!
+                result = result.replacing(s, with: digit, maxReplacements: 1)
+                //print(result)
+            }
+            else {
+                result.removeFirst()
+            }
+        }
+        while (!result.isEmpty) { // Safety
+            if result.contains(#/\d$/#) { break }
+            if let m = result.firstMatch(of: reEnd) {
+                let s:String = String(m.1)
+                let digit = lookup[s]!
+                result = result.replacing(s, with: digit, maxReplacements: 1)
+                //print(result)
+            }
+            else {
+                result.removeLast()
+            }
+        }
+        return result
     }
 }
