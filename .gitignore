@@ -2,3 +2,5 @@
 *.pyc
 Perl/.pls-tmp-*
 PHP/vendor
+Input
+Swift/Playgrounds/Advent of Code 2023.swiftpm/Resources
