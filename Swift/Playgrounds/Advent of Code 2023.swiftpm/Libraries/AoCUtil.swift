@@ -18,6 +18,28 @@ class AoCUtil {
         return result
     }
     
+    static func xorRanges(r1: Range<Int>, r2: Range<Int>) -> [Range<Int>] {
+        guard r1.overlaps(r2) else { return [r1, r2] }
+        let common = r1.clamped(to: r2)
+        var results = [Range<Int>]()
+        for r in [r1, r2] {
+            if r.lowerBound < common.lowerBound {
+                let exclusiveRange = r.lowerBound..<common.lowerBound
+                results.append(exclusiveRange)
+            }
+            if common.upperBound < r.upperBound {
+                let exclusiveRange = common.upperBound..<r.upperBound
+                results.append(exclusiveRange)
+            }
+        }
+        return results
+    }
+    
+    static func intersectRanges(r1: Range<Int>, r2: Range<Int>) -> Range<Int>? {
+        guard r1.overlaps(r2) else { return nil }
+        return r1.clamped(to: r2)
+    }
+    
     static func cRangeToArray(r: ClosedRange<Int>) -> [Int] {
         var result = [Int]()
         for i in r {
