@@ -37,18 +37,21 @@ class Day01: AoCSolution {
         return sum
     }
     
+    // Refactored to only create these once
+    private static var reStrStart = #/^(one|two|three|four|five|six|seven|eight|nine)/#
+    private static var reStrEnd = #/(one|two|three|four|five|six|seven|eight|nine)$/#
+    private static var lookup: Dictionary<String, String> = 
+        ["one": "1", "two": "2", "three": "3",
+        "four": "4", "five": "5", "six": "6",
+        "seven": "7", "eight": "8", "nine": "9"]
+    
     private static func letterToDigit(line: String) -> String {
         var result = line
         //print(line)
-        let reStart = #/^(one|two|three|four|five|six|seven|eight|nine)/#
-        let reEnd = #/(one|two|three|four|five|six|seven|eight|nine)$/#
-        let lookup: Dictionary<String, String> = ["one": "1", "two": "2", "three": "3",
-                                                  "four": "4", "five": "5", "six": "6",
-                                                  "seven": "7", "eight": "8", "nine": "9"]
         
         while (!result.isEmpty) { // Safety
             if result.starts(with: #/\d/#) { break }
-            if let m = result.firstMatch(of: reStart) {
+            if let m = result.firstMatch(of: reStrStart) {
                 let s:String = String(m.1)
                 let digit = lookup[s]!
                 result = result.replacing(s, with: digit, maxReplacements: 1)
@@ -60,7 +63,7 @@ class Day01: AoCSolution {
         }
         while (!result.isEmpty) { // Safety
             if result.contains(#/\d$/#) { break }
-            if let m = result.firstMatch(of: reEnd) {
+            if let m = result.firstMatch(of: reStrEnd) {
                 let s:String = String(m.1)
                 let digit = lookup[s]!
                 result = result.replacing(s, with: digit, maxReplacements: 1)

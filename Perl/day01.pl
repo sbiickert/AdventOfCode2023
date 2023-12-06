@@ -14,9 +14,11 @@ use AOC::Util;
 
 my $INPUT_FILE = 'day01_test.txt';
 #my $INPUT_FILE = 'day01_challenge.txt';
-my @input = read_input("../input/$INPUT_FILE");
+my $INDEX = 0;
 
-say "Advent of Code 2023, Day 01: Testing";
+my @input = read_grouped_input("../input/$INPUT_FILE", $INDEX);
+
+say "Advent of Code 2023, Day 01: Trebuchet!?";
 
 solve_part_one(@input);
 #solve_part_two(@input);

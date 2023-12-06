@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3781146D2B20C10400F63025 /* Day05.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3781146C2B20C10400F63025 /* Day05.swift */; };
+		3781146E2B20C1F200F63025 /* Day05.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3781146C2B20C10400F63025 /* Day05.swift */; };
 		378CBBC22B15550E009C230A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378CBBC12B15550E009C230A /* main.swift */; };
 		378CBBD82B1555AD009C230A /* AoCString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378CBBD52B1555AD009C230A /* AoCString.swift */; };
 		378CBBD92B1555AD009C230A /* AoCSpatial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378CBBD62B1555AD009C230A /* AoCSpatial.swift */; };
@@ -43,6 +45,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3781146C2B20C10400F63025 /* Day05.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day05.swift; sourceTree = "<group>"; };
 		378CBBBE2B15550E009C230A /* AoC 2023 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "AoC 2023"; sourceTree = BUILT_PRODUCTS_DIR; };
 		378CBBC12B15550E009C230A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		378CBBC82B15551B009C230A /* AoC 2023.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "AoC 2023.entitlements"; sourceTree = "<group>"; };
@@ -138,6 +141,7 @@
 		378CBBE42B155609009C230A /* Solutions */ = {
 			isa = PBXGroup;
 			children = (
+				3781146C2B20C10400F63025 /* Day05.swift */,
 				378CBBE62B15561E009C230A /* Day00.swift */,
 			);
 			path = Solutions;
@@ -237,6 +241,7 @@
 				378CBBEE2B155AF7009C230A /* AoCInput.swift in Sources */,
 				378CBBE82B15561E009C230A /* Day00.swift in Sources */,
 				378CBBDA2B1555AD009C230A /* AoCUtil.swift in Sources */,
+				3781146D2B20C10400F63025 /* Day05.swift in Sources */,
 				378CBBD82B1555AD009C230A /* AoCString.swift in Sources */,
 				378CBBEB2B155ADE009C230A /* AoCSolution.swift in Sources */,
 				378CBBC22B15550E009C230A /* main.swift in Sources */,
@@ -256,6 +261,7 @@
 				378CBBE32B1555E3009C230A /* AoCUtil.swift in Sources */,
 				378CBBEF2B155AF7009C230A /* AoCInput.swift in Sources */,
 				378CBBE92B1557E6009C230A /* Day00.swift in Sources */,
+				3781146E2B20C1F200F63025 /* Day05.swift in Sources */,
 				378CBBE22B1555E1009C230A /* AoCString.swift in Sources */,
 				378CBBF12B155BFC009C230A /* AoCInputTests.swift in Sources */,
 				378CBBEC2B155ADE009C230A /* AoCSolution.swift in Sources */,
