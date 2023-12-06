@@ -43,25 +43,37 @@ class Day05: AoCSolution {
     }
     
     func solvePartTwo(_ seedRanges: [Range<Int>], _ maps: [InOutMap]) -> Int {
-        var minLocation = Int.max
+        var minLocationPerRange = [Int]()
         var count = 0
+		var workItems = [DispatchWorkItem]()
         for seedRange in seedRanges {
-            for seed in seedRange {
-                var value = seed
-                for map in maps {
-                    value = map.convert(inValue: value)
-                }
-                if value < minLocation {
-                    minLocation = value
-                }
-				count += 1
-				if count % 1000000 == 0 {
-					print(count)
+			let dwi = DispatchWorkItem {
+				var minLocationForRange = Int.max
+				for seed in seedRange {
+					var value = seed
+					for map in maps {
+						value = map.convert(inValue: value)
+					}
+					if value < minLocationForRange {
+						minLocationForRange = value
+					}
+					count += 1
+					if count % 10000000 == 0 {
+						print("\(seedRange) \(count)")
+					}
 				}
-            }
-            print(seedRange)
+				print("\(seedRange) finished.")
+				minLocationPerRange.append(minLocationForRange)
+			}
+			DispatchQueue.global().async(execute: dwi)
+			workItems.append(dwi)
         }
-        return minLocation
+		for dwi in workItems {
+			dwi.wait()
+		}
+		
+		print(minLocationPerRange)
+		return minLocationPerRange.sorted().first!
     }
     
     static func parseSeeds(line: String) -> [Int] {
@@ -80,13 +92,6 @@ class Day05: AoCSolution {
             ranges.append(range)
         }
         ranges.sort { $0.lowerBound < $1.lowerBound }
-//        var totalSeeds = 0
-//        for range in ranges {
-//            print(range)
-//            print(range.count)
-//            totalSeeds += range.count
-//        }
-//        print(totalSeeds)
         return ranges
     }
 }
@@ -100,7 +105,8 @@ struct InOutMap: CustomDebugStringConvertible {
         name = String(textBlock[0].split(separator: " ").first!)
         for i in 1..<textBlock.count {
             let nums = textBlock[i].split(separator: " ").compactMap {Int(String($0))}
-            let converter = Converter(source: nums[1]..<(nums[1]+nums[2]), destStart: nums[0])
+            let converter = Converter(source: nums[1]..<(nums[1]+nums[2]),
+									  offset: nums[0] - nums[1])
             converters.append(converter)
         }
         converters.sort(by: {$0.source.lowerBound < $1.source.lowerBound})
@@ -121,8 +127,6 @@ struct InOutMap: CustomDebugStringConvertible {
                 transformRanges.append(unionRange!)
                 unionRange = nil
             }
-//            if isContiguous { print("\(upper) == \(lower)") }
-//            else { print("** \(upper) != \(lower) **")}
         }
         transformRanges.append(unionRange!)
     }
@@ -138,7 +142,7 @@ struct InOutMap: CustomDebugStringConvertible {
         if insideRanges { 
             for converter in converters {
                 if converter.source.contains(inValue) {
-                    let outValue = converter.destStart + (inValue - converter.source.lowerBound)
+					let outValue = inValue + converter.offset
                     //print("\(name): \(inValue) -> \(outValue)")
                     return outValue
                 }
@@ -157,9 +161,9 @@ struct InOutMap: CustomDebugStringConvertible {
 
 struct Converter: CustomDebugStringConvertible {
     let source: Range<Int>
-    let destStart: Int
+    let offset: Int
     
     var debugDescription: String {
-        return "Converter source: \(source), dest: \(destStart)"
+        return "Converter source: \(source), offset: \(offset)"
     }
 }
