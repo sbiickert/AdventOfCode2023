@@ -42,18 +42,35 @@ class Day06: AoCSolution {
     func solvePartTwo(_ race: BoatRace) -> Int {
         // Find first winning time and last winning time
         var firstWinningTime = Int.max
-        for t in 1..<race.raceTime {
+        var t = 1
+        var step = 200
+        while (true) {
             if race.canWin(buttonPressTime: t) {
-                firstWinningTime = t
-                break
+                if step == 1 {
+                    firstWinningTime = t
+                    break
+                }
+                else {
+                    t -= step
+                    step = 1
+                }
             }
+            t += step
         }
+        
         var lastWinningTime = 0
-        var t = race.raceTime - 1
+        t = race.raceTime - 1
+        step = 200
         while true {
             if race.canWin(buttonPressTime: t) {
-                lastWinningTime = t
-                break
+                if step == 1 {
+                    lastWinningTime = t
+                    break
+                }
+                else {
+                    t += step
+                    step = 1
+                }
             }
             t -= 1
         }
