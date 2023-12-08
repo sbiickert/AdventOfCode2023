@@ -19,7 +19,8 @@ class Day08: AoCSolution {
         }
         
         let numSteps1 = solvePartOne(instructions, nodes)
-        let numSteps2 = solvePartTwo(instructions, nodes)
+        let patterns = discoverPatterns(instructions, nodes)
+        let numSteps2 = solvePartTwo(patterns)
         
         return AoCResult(part1: "\(numSteps1)", part2: "\(numSteps2)")
     }
@@ -41,14 +42,54 @@ class Day08: AoCSolution {
         }
         return count
     }
+        
+    func discoverPatterns(_ instructions: [String], 
+                          _ nodes: Dictionary<String,NetworkNode>) -> Dictionary<String,Int> {
+        let startNodes = nodes.values.filter({ $0.id.hasSuffix("A") })
+        var result = Dictionary<String,Int>()
+        for node in startNodes {
+            //print(node.id)
+            var count = 0
+            var ptr = 0
+            var current = node
+            while !current.id.hasSuffix("Z") {
+                let nextID = instructions[ptr] == "L" ? current.l : current.r
+                current = nodes[nextID]!
+                count += 1
+                ptr += 1
+                ptr = ptr % instructions.count
+            }
+            result[node.id] = count
+        }
+        return result
+    }
+ 
+    func solvePartTwo(_ patterns: Dictionary<String,Int>) -> Int {
+        let repeatSizes: [Int] = patterns.values.sorted()
+        //print(repeatSizes)
+        var count = 0
+        var ptr = 0
+        var jump = repeatSizes[ptr]
+        ptr += 1
+        while ptr < repeatSizes.count {
+            count += jump
+            if count % repeatSizes[ptr] == 0 {
+                //print("Sync \(ptr) at \(count)")
+                jump = count
+                ptr += 1
+            }
+        }
+        return count
+    }
     
-    func solvePartTwo(_ instructions: [String], 
-                      _ nodes: Dictionary<String,NetworkNode>) -> Int {
+    func solvePartTwoBruteForce(_ instructions: [String], 
+                                _ nodes: Dictionary<String,NetworkNode>) -> Int {
+        // This brute force method only works for up to three nodes
         let startSuffix = "A"
         let endSuffix = "Z"
         var count = 0
         var ptr = 0
-        var current = nodes.values.filter { $0.id.hasSuffix(startSuffix) }
+        var current = nodes.values.filter({ $0.id.hasSuffix(startSuffix) })
         while current.filter({!$0.id.hasSuffix(endSuffix)}).count > 0 {
             let instr = instructions[ptr]
             let nextNodes = current.compactMap { instr == "L" ? nodes[$0.l]: nodes[$0.r]!}

@@ -13,7 +13,6 @@ import Foundation
 //print(rTest)
 //let rChallenge = s05.solve(i05[0])
 //print(rChallenge)
-
 let s08 = Day08()
 let i08 = AoCInput.inputsFor(solution: s08)
 //let rTest = s08.solve(i08[1])
