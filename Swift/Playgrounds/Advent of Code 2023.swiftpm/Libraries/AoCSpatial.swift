@@ -95,6 +95,9 @@ struct AoCCoord2D: Hashable, Equatable, CustomDebugStringConvertible {
     let x: Int
     let y: Int
     
+    var col: Int { return x }
+    var row: Int { return y }
+    
     static var origin: AoCCoord2D {
         return AoCCoord2D(x: 0, y: 0)
     }
