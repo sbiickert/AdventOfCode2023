@@ -19,6 +19,17 @@ class AoCGrid2D {
         _extent = nil
     }
     
+    func load(data: [String]) {
+        for row in 0..<data.count {
+            for col in 0..<data[row].count {
+                let s = String(data[row][col])
+                if s != defaultValue {
+                    self.setValue(s, at: AoCCoord2D(x: col, y: row))
+                }
+            }
+        }
+    }
+    
     var rule: AoCAdjacencyRule {
         return _adjacencyRule
     }
