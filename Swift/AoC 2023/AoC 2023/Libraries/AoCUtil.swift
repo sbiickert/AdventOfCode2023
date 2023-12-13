@@ -47,4 +47,9 @@ class AoCUtil {
 	static func trueMod(num: Int, mod: Int) -> Int {
 		return (mod + (num % mod)) % mod;
 	}
+	
+	static func getBit(x: Int, in num:Int) -> Int {
+		return num >> x & 1
+	}
+
 }

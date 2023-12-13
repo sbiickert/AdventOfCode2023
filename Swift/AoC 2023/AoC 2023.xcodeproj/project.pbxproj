@@ -36,6 +36,8 @@
 		378CBBF52B155D42009C230A /* AoCGrid2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378CBBF42B155D42009C230A /* AoCGrid2D.swift */; };
 		378CBBF62B155D42009C230A /* AoCGrid2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378CBBF42B155D42009C230A /* AoCGrid2D.swift */; };
 		378CBBF82B155D81009C230A /* AoCGridTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378CBBF72B155D81009C230A /* AoCGridTests.swift */; };
+		379C0AE32B2A47AF00AB4F5F /* Day13.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379C0AE22B2A47AF00AB4F5F /* Day13.swift */; };
+		379C0AE42B2A47AF00AB4F5F /* Day13.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379C0AE22B2A47AF00AB4F5F /* Day13.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -72,6 +74,7 @@
 		378CBBF22B155C46009C230A /* AoCSolutionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AoCSolutionTests.swift; sourceTree = "<group>"; };
 		378CBBF42B155D42009C230A /* AoCGrid2D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AoCGrid2D.swift; sourceTree = "<group>"; };
 		378CBBF72B155D81009C230A /* AoCGridTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AoCGridTests.swift; sourceTree = "<group>"; };
+		379C0AE22B2A47AF00AB4F5F /* Day13.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day13.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,6 +153,7 @@
 		378CBBE42B155609009C230A /* Solutions */ = {
 			isa = PBXGroup;
 			children = (
+				379C0AE22B2A47AF00AB4F5F /* Day13.swift */,
 				3785D65D2B28B8F400FBC3A8 /* Day12.swift */,
 				37060D232B263DDA00A788F5 /* Day10.swift */,
 				375584542B235243005A9544 /* Day08.swift */,
@@ -252,6 +256,7 @@
 				378CBBF52B155D42009C230A /* AoCGrid2D.swift in Sources */,
 				378CBBEE2B155AF7009C230A /* AoCInput.swift in Sources */,
 				378CBBE82B15561E009C230A /* Day00.swift in Sources */,
+				379C0AE32B2A47AF00AB4F5F /* Day13.swift in Sources */,
 				378CBBDA2B1555AD009C230A /* AoCUtil.swift in Sources */,
 				3781146D2B20C10400F63025 /* Day05.swift in Sources */,
 				378CBBD82B1555AD009C230A /* AoCString.swift in Sources */,
@@ -269,6 +274,7 @@
 			files = (
 				378CBBF32B155C46009C230A /* AoCSolutionTests.swift in Sources */,
 				378CBBF62B155D42009C230A /* AoCGrid2D.swift in Sources */,
+				379C0AE42B2A47AF00AB4F5F /* Day13.swift in Sources */,
 				378CBBF82B155D81009C230A /* AoCGridTests.swift in Sources */,
 				378CBBE12B1555DF009C230A /* AoCSpatial.swift in Sources */,
 				378CBBDE2B1555BE009C230A /* AoCSpatialTests.swift in Sources */,
