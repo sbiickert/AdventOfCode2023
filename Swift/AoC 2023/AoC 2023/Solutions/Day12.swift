@@ -12,15 +12,18 @@ class Day12: AoCSolution {
         super.solve(input)
         
         let records = input.textLines.map {SpringRecord(s: $0)}
-        let part1 = records.map({$0.possibleArrangementCount}).reduce(0, +)
+        var part1 = 0
+		for i in 0..<records.count {
+			var record = records[i]
+			part1 += record.possibleArrangementCount()
+		}
 		
 		let expandedRecords = records.map { $0.expanded(times: 5) }
 //		print(expandedRecords)
 		var part2 = 0
 		for i in 0..<expandedRecords.count {
-			print(i)
-			part2 += expandedRecords[i].possibleArrangementCount
-			print(part2)
+			var record = expandedRecords[i]
+			part2 += record.possibleArrangementCount()
 		}
 
         return AoCResult(part1: "\(part1)", part2: "\(part2)")
@@ -34,9 +37,9 @@ enum SpringCondition {
 	
 	static func from(stringRepresentation s:String) -> SpringCondition {
 		switch s {
-		case "#":
-			return .operational
 		case ".":
+			return .operational
+		case "#":
 			return .damaged
 		default:
 			return .unknown
@@ -45,11 +48,16 @@ enum SpringCondition {
 	
 	var stringRepresentation: String {
 		switch self {
-		case .damaged: return "."
-		case .operational: return "#"
+		case .damaged: return "#"
+		case .operational: return "."
 		default: return "?"
 		}
 	}
+}
+
+struct MemoRec: Hashable {
+	let p: Int
+	let g: Int
 }
 
 struct SpringRecord: CustomDebugStringConvertible {
@@ -60,69 +68,69 @@ struct SpringRecord: CustomDebugStringConvertible {
 
     init(s: String) {
         let parts = s.split(separator: " ")
-		conditionRecord = parts[0].map {SpringCondition.from(stringRepresentation: String($0))}
+		var cr = parts[0].map({SpringCondition.from(stringRepresentation: String($0))})
+		cr.append(.operational) // Add operational spring at the end
+		conditionRecord = cr
         groupLengths = parts[1].split(separator: ",").map {Int(String($0))!}
 		originalConditionRecord = String(parts[0])
 		originalGroupLengths = String(parts[1])
     }
     
-    var possibleArrangementCount: Int {
-        var unknownIndexes = [Int]()
-        for i in 0..<conditionRecord.count {
-            if conditionRecord[i] == .unknown { unknownIndexes.append(i)}
-        }
-        let nTotalCount = 2 << (unknownIndexes.count - 1)
-        //print("\(nTotalCount) combinations in \(self)")
-        var count = 0
-		var altRecord = conditionRecord
-        for bitNum in 0..<nTotalCount {
-            for i in 0..<unknownIndexes.count {
-                let index = unknownIndexes[i]
-                let state: SpringCondition = getBit(x: i, in: bitNum) == 0 ? .damaged : .operational
-                altRecord[index] = state
-            }
-			if evalAlternative(record: altRecord) {
-				//print("\(altRecord.map({$0.rawValue}).joined()) OK")
-				count += 1
-			}
-        }
-        //print("\(count) of them are possible.")
-        return count
+	private var _memo = Dictionary<MemoRec,Int>()
+    mutating func possibleArrangementCount() -> Int {
+		_memo.removeAll()
+		return arrangementCount(p: 0, g: 0)
     }
 	
-	private func evalAlternative(record r: [SpringCondition]) -> Bool {
-		var gIndex = 0
-		var currentGroupCount = 0
-		for ptr in 0..<r.count {
-			if r[ptr] == .damaged {
-				if currentGroupCount > 0 {
-					if currentGroupCount != groupLengths[gIndex] {
-						return false
-					}
-					currentGroupCount = 0
-					gIndex += 1
-					
-				}
+	//https://github.com/vanam/CodeUnveiled/blob/master/Advent%20Of%20Code%202023/12/main.py
+	mutating func arrangementCount(p: Int, g: Int) -> Int {
+		if g >= groupLengths.count { // no more groups
+			if p < conditionRecord.count && conditionRecord[p...].contains(.damaged) {
+				// eg: .##?????#.. 4,1
+				return 0 // # not a solution - there are still damaged springs in the record
+			}
+			return 1
+		}
+		
+		let gs = groupLengths[g] // damaged group size
+		if p+gs >= conditionRecord.count { // This used to be just p >=, but line 109 could be out of range
+			return 0 // we ran out of springs but there are still groups to arrange
+		}
+
+		let mRec = MemoRec(p: p, g: g)
+		if _memo.keys.contains(mRec) { return _memo[mRec]! }
+
+		var result = 0
+
+		if conditionRecord[p] == .unknown {
+			// if we can start group of damaged springs here
+			// eg: '??#...... 3' we can place 3 '#' and there is '?' or '.' after the group
+			// eg: '??##...... 3' we cannot place 3 '#' here
+			if !conditionRecord[p..<p+gs].contains(.operational) &&
+				conditionRecord[p + gs] != .damaged {
+				// start damaged group here + this spring is operational ('.')
+				result = arrangementCount(p: p + gs + 1, g: g + 1) + arrangementCount(p: p + 1, g: g)
 			}
 			else {
-				if gIndex == groupLengths.count {
-					return false // Found another group when we've already got them all
-				}
-				currentGroupCount += 1
+				// this spring is operational ('.')
+				result = arrangementCount(p: p + 1, g: g)
 			}
 		}
-		if currentGroupCount > 0 {
-			if currentGroupCount != groupLengths[gIndex] {
-				return false
+		else if conditionRecord[p] == .damaged {
+			// if we can start damaged group here
+			if !conditionRecord[p..<p + gs].contains(.operational) && conditionRecord[p + gs] != .damaged {
+				result = arrangementCount(p: p + gs + 1, g: g + 1)
 			}
-			currentGroupCount = 0
-			gIndex += 1
+			else {
+				result = 0 // not a solution - we must always start damaged group here
+			}
 		}
-		return gIndex == groupLengths.count
-	}
-	
-	private func getBit(x: Int, in num:Int) -> Int {
-		return num >> x & 1
+		else if conditionRecord[p] == .operational {
+			result = arrangementCount(p: p+1, g: g) // operational spring -> go to the next spring
+		}
+
+		_memo[mRec] = result
+		return result
 	}
 	
 	func expanded(times: Int) -> SpringRecord {
