@@ -11,51 +11,79 @@ class Day16: AoCSolution {
     override func solve(_ input: AoCInput) -> AoCResult {
         super.solve(input)
         
-        let grid = parseGrid(input: input.textLines)
+		let grid = Day16.parseGrid(input: input.textLines)
         
         let part1 = solvePartOne(in: grid)
-        let part2 = solvePartTwo(in: grid)
-        
+//		let part2 = solvePartTwo(in: grid)
+		let part2 = solvePartTwoGCD(input: input.textLines, extent: grid.extent!)
+
         return AoCResult(part1: "\(part1)", part2: "\(part2)")
     }
     
     func solvePartOne(in grid: AoCGrid2D) -> Int {
-        return run(beam: AoCPos2D(location: AoCCoord2D.origin, direction: .east),
-                   in: grid)
+		let beam = AoCPos2D(location: AoCCoord2D.origin, direction: .east)
+		return Day16.run(beam: beam, in: grid)
     }
+	
+	func solvePartTwo(in grid: AoCGrid2D) -> Int {
+		var maxEnergized = 0
+		let beams = Day16.getEdgeBeams(for: grid.extent!)
+		
+		for beam in beams {
+			let energizedCount = Day16.run(beam: beam, in: grid)
+			if energizedCount > maxEnergized { maxEnergized = energizedCount }
+		}
+		return maxEnergized
+	}
+	
+	func solvePartTwoGCD(input: [String], extent: AoCExtent2D) -> Int {
+		var readings = [Int]()
+		let beams = Day16.getEdgeBeams(for: extent)
+		
+		var workitems = [DispatchWorkItem]()
+		for dir: AoCDir in [.north, .east, .south, .west] {
+			let dwi = DispatchWorkItem {
+				let myBeams = beams.filter { $0.direction == dir }
+				let myGrid = Day16.parseGrid(input: input)
+				for beam in myBeams {
+					let energizedCount = Day16.run(beam: beam, in: myGrid)
+					readings.append(energizedCount)
+				}
+			}
+			DispatchQueue.global().async(execute: dwi)
+			workitems.append(dwi)
+		}
+		for dwi in workitems {
+			dwi.wait()
+		}
+		
+		return readings.sorted().last!
+	}
+
+	static func getEdgeBeams(for extent: AoCExtent2D) -> [AoCPos2D] {
+		let allCoords = extent.allCoords
+		let insetExt = extent.inset(amount: 1)!
+		let edgeCoords: [AoCCoord2D] = allCoords.filter {!insetExt.contains($0)}
+		
+		var beams = [AoCPos2D]()
+		for coord in edgeCoords { // Corners fall into two if statements
+			if coord.y == extent.min.y {
+				beams.append(AoCPos2D(location: coord, direction: .south))
+			}
+			if coord.x == extent.min.x {
+				beams.append(AoCPos2D(location: coord, direction: .east))
+			}
+			if coord.y == extent.max.y {
+				beams.append(AoCPos2D(location: coord, direction: .north))
+			}
+			if coord.x == extent.max.x {
+				beams.append(AoCPos2D(location: coord, direction: .west))
+			}
+		}
+		return beams
+	}
     
-    func solvePartTwo(in grid: AoCGrid2D) -> Int {
-        var maxEnergized = 0
-        
-        let ext = grid.extent!
-        let allCoords = ext.allCoords
-        let insetExt = ext.inset(amount: 1)!
-        let edgeCoords: [AoCCoord2D] = allCoords.filter {!insetExt.contains($0)}
-        
-        var beams = [AoCPos2D]()
-        for coord in edgeCoords { // Corners fall into two if statements
-            if coord.y == ext.min.y {
-                beams.append(AoCPos2D(location: coord, direction: .south))
-            }
-            if coord.x == ext.min.x {
-                beams.append(AoCPos2D(location: coord, direction: .east))
-            }
-            if coord.y == ext.max.y {
-                beams.append(AoCPos2D(location: coord, direction: .north))
-            }
-            if coord.x == ext.max.x {
-                beams.append(AoCPos2D(location: coord, direction: .west))
-            }
-        }
-        
-        for beam in beams {
-            let energizedCount = run(beam: beam, in: grid)
-            if energizedCount > maxEnergized { maxEnergized = energizedCount }
-        }
-        return maxEnergized
-    }
-    
-    func run(beam input: AoCPos2D, in grid: AoCGrid2D) -> Int {
+    static func run(beam input: AoCPos2D, in grid: AoCGrid2D) -> Int {
         deenergizeGrid(grid)
         var beams: [AoCPos2D] = [input]
         var MEMO = Set<AoCPos2D>()
@@ -81,14 +109,14 @@ class Day16: AoCSolution {
         return countEnergized
     }
     
-    func deenergizeGrid(_ grid: AoCGrid2D) {
+    static func deenergizeGrid(_ grid: AoCGrid2D) {
         for coord in grid.coords {
             let optic = grid.value(at: coord) as! Optic
             optic.isEnergized = false
         }
     }
     
-    func parseGrid(input: [String]) -> AoCGrid2D {
+    static func parseGrid(input: [String]) -> AoCGrid2D {
         let grid = AoCGrid2D()
         grid.load(data: input)
         for coord in grid.extent!.allCoords {
