@@ -42,6 +42,8 @@
 		379C0AE42B2A47AF00AB4F5F /* Day13.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379C0AE22B2A47AF00AB4F5F /* Day13.swift */; };
 		37A06EFD2B2DF90100361F4C /* Day16.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A06EFC2B2DF90100361F4C /* Day16.swift */; };
 		37A06EFE2B2DF90100361F4C /* Day16.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A06EFC2B2DF90100361F4C /* Day16.swift */; };
+		37ECEFE22B2F93820008B90A /* Day17.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ECEFE12B2F93820008B90A /* Day17.swift */; };
+		37ECEFE32B2F93820008B90A /* Day17.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ECEFE12B2F93820008B90A /* Day17.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -81,6 +83,7 @@
 		378CBBF72B155D81009C230A /* AoCGridTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AoCGridTests.swift; sourceTree = "<group>"; };
 		379C0AE22B2A47AF00AB4F5F /* Day13.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day13.swift; sourceTree = "<group>"; };
 		37A06EFC2B2DF90100361F4C /* Day16.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day16.swift; sourceTree = "<group>"; };
+		37ECEFE12B2F93820008B90A /* Day17.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day17.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,6 +162,7 @@
 		378CBBE42B155609009C230A /* Solutions */ = {
 			isa = PBXGroup;
 			children = (
+				37ECEFE12B2F93820008B90A /* Day17.swift */,
 				37A06EFC2B2DF90100361F4C /* Day16.swift */,
 				3758DA8C2B2B6E2F00B31637 /* Day14.swift */,
 				379C0AE22B2A47AF00AB4F5F /* Day13.swift */,
@@ -272,6 +276,7 @@
 				37060D242B263DDA00A788F5 /* Day10.swift in Sources */,
 				378CBBEB2B155ADE009C230A /* AoCSolution.swift in Sources */,
 				37A06EFD2B2DF90100361F4C /* Day16.swift in Sources */,
+				37ECEFE22B2F93820008B90A /* Day17.swift in Sources */,
 				375584552B235243005A9544 /* Day08.swift in Sources */,
 				378CBBC22B15550E009C230A /* main.swift in Sources */,
 				3785D65E2B28B8F400FBC3A8 /* Day12.swift in Sources */,
@@ -295,6 +300,7 @@
 				3758DA8E2B2B6E2F00B31637 /* Day14.swift in Sources */,
 				37A06EFE2B2DF90100361F4C /* Day16.swift in Sources */,
 				378CBBEF2B155AF7009C230A /* AoCInput.swift in Sources */,
+				37ECEFE32B2F93820008B90A /* Day17.swift in Sources */,
 				375584562B235243005A9544 /* Day08.swift in Sources */,
 				378CBBE92B1557E6009C230A /* Day00.swift in Sources */,
 				3781146E2B20C1F200F63025 /* Day05.swift in Sources */,
