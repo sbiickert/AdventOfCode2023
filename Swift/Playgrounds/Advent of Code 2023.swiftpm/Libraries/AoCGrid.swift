@@ -70,6 +70,26 @@ class AoCGrid2D {
         }
     }
     
+    func fill(with value:String, at point:AoCCoord2D, filled: inout [AoCCoord2D]) -> Bool {
+        if !extent!.contains(point) {
+            return true
+        }
+        var touchedInfinity = false
+        setValue(value, at: point)
+        filled.append(point)
+        let neighbours = neighbourCoords(at: point, withValue: defaultValue)
+        for neighbour in neighbours {
+            touchedInfinity = touchedInfinity || fill(with: value, at: neighbour, filled: &filled)
+        }
+        if touchedInfinity {
+            for filledPoint in filled {
+                clear(at: filledPoint)
+            }
+        }
+        return touchedInfinity
+    }
+
+    
     func clear(at coord: AoCCoord2D, resetExtent: Bool = false) {
         _data.removeValue(forKey: coord)
         if (resetExtent) {

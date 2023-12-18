@@ -44,6 +44,30 @@ enum AoCDir: String, CaseIterable {
         }
     }
     
+    func turnDirection(to other: AoCDir) -> AoCTurn {
+        if self == other { return .none }
+        let result: AoCTurn
+        switch self {
+        case .north:
+            result = [.nw, .west, .sw].contains(other) ? .left : .right
+        case .ne:
+            result = [.north, .nw, .west].contains(other) ? .left : .right
+        case .east:
+            result = [.ne, .north, .nw].contains(other) ? .left : .right
+        case .se:
+            result = [.east, .ne, .north].contains(other) ? .left : .right
+        case .south:
+            result = [.se, .east, .ne].contains(other) ? .left : .right
+        case .sw:
+            result = [.south, .se, .east].contains(other) ? .left : .right
+        case .west:
+            result = [.sw, .south, .se].contains(other) ? .left : .right
+        case .nw:
+            result = [.west, .sw, .south].contains(other) ? .left : .right
+        }
+        return result
+    }
+    
     static func fromAlias(_ alias: String) -> AoCDir? {
         switch alias.lowercased() {
         case "^", "up", "u": return .north
@@ -195,10 +219,9 @@ struct AoCPos2D: Hashable, CustomDebugStringConvertible {
     
     func movedForward(distance: Int = 1) -> AoCPos2D {
         if direction == nil { return self }
-        var loc = location
-        for _ in 0..<distance {
-            loc = loc.offset(direction: direction!)
-        }
+        var offset = direction!.offset
+        offset = AoCCoord2D(x: offset.x * distance, y: offset.y * distance)
+        let loc = location + offset
         return AoCPos2D(location: loc, direction: direction)
     }
     
