@@ -69,4 +69,29 @@ class AoCUtil {
     static func trueMod(num: Int, mod: Int) -> Int {
         return (mod + (num % mod)) % mod;
     }
+    
+    static func gcd(_ x:Int, _ y:Int) -> Int {
+        var a = 0
+        var b = max(x,y)
+        var r = min(x,y)
+        while r != 0 {
+            a = b
+            b = r
+            r = a % b
+        }
+        return b
+    }
+    
+    static func lcm(_ x:Int, _ y:Int) -> Int {
+        return x / gcd(x, y) * y
+    }
+    
+    static func lcm(values:[Int]) -> Int {
+        guard !values.isEmpty else { return 0 }
+        var running = values.first!
+        for n in 1..<values.count {
+            running = lcm(running,values[n])
+        }
+        return running
+    }
 }
