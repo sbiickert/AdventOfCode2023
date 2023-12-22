@@ -12,6 +12,7 @@ class AoCGrid2D {
 	private var _data = Dictionary<AoCCoord2D, Any>()
 	private var _adjacencyRule: AoCAdjacencyRule = .rook
 	private var _extent: AoCExtent2D?
+	var isTiledInfinitely: Bool = false
 
 	init(defaultValue: String = ".", rule: AoCAdjacencyRule = .rook) {
 		self.defaultValue = defaultValue
@@ -51,10 +52,17 @@ class AoCGrid2D {
 			return renderable.glyph
 		}
 		return "\(value)"
+		
 	}
 	
 	func value(at coord: AoCCoord2D) -> Any {
-		if let v = _data[coord] {
+		var c = coord
+		if isTiledInfinitely && extent != nil && extent!.contains(coord) == false {
+			// This coord is outside the bounds of the grid. What would a tiled copy of the grid return?
+			c = AoCCoord2D(x: AoCUtil.trueMod(num: coord.x, mod: extent!.width),
+						   y: AoCUtil.trueMod(num: coord.y, mod: extent!.height))
+		}
+		if let v = _data[c] {
 			return v
 		}
 		return defaultValue
@@ -100,6 +108,10 @@ class AoCGrid2D {
 		return Array(_data.keys)
 	}
 	
+	var values: [Any] {
+		return Array(_data.values)
+	}
+	
 	func getCoords(withValue v: String) -> [AoCCoord2D] {
 		let result = _data.filter {
 			let str = AoCGrid2D.transformToString(value: $0.value)
@@ -136,9 +148,12 @@ class AoCGrid2D {
 		return result
 	}
 	
-	func toString(markers: Dictionary<AoCCoord2D, String>? = nil) -> String {
+	func toString(markers: Dictionary<AoCCoord2D, String>? = nil, drawExtent: AoCExtent2D? = nil) -> String {
 		var str = ""
-		if let ext = extent {
+		if var ext = extent {
+			
+			if isTiledInfinitely && drawExtent != nil { ext = drawExtent! }
+			
 			for row in ext.min.y...ext.max.y {
 				var values = [String]()
 				for col in ext.min.x...ext.max.x {
@@ -148,16 +163,7 @@ class AoCGrid2D {
 						values.append(markers[coord]!)
 					}
 					else {
-						let v = value(at: coord)
-						if let marker = v as? String {
-							values.append(marker)
-						}
-						else if let renderable = v as? AoCGridRenderable {
-							values.append(renderable.glyph)
-						}
-						else {
-							values.append(defaultValue)
-						}
+						values.append(stringValue(at: coord))
 					}
 				}
 				str.append(values.joined(separator: " "))
@@ -167,8 +173,8 @@ class AoCGrid2D {
 		return str
 	}
 	
-	func draw(markers: Dictionary<AoCCoord2D, String>? = nil) {
-		print(self.toString(markers: markers))
+	func draw(markers: Dictionary<AoCCoord2D, String>? = nil, drawExtent: AoCExtent2D? = nil) {
+		print(self.toString(markers: markers, drawExtent: drawExtent))
 	}
 }
 

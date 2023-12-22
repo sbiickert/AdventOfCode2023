@@ -76,7 +76,7 @@ class Day10: AoCSolution {
     }
 
 	func evaluate(position pos: AoCPos2D, in grid: AoCGrid2D) -> AoCTurn? {
-		var (left,right) = getLeftAndRight(pos)
+		let (left,right) = getLeftAndRight(pos)
 		var whichIsOutside: AoCTurn?
 		
 		if grid.stringValue(at: left) == grid.defaultValue {
