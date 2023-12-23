@@ -1,8 +1,8 @@
 //
-//	AoCSpatial.swift
-//	AoC 2023
+//    AoCSpatial.swift
+//    AoC 2023
 //
-//	Created by Simon Biickert on 2023-04-27.
+//    Created by Simon Biickert on 2023-04-27.
 //
 
 import Foundation
@@ -11,6 +11,32 @@ enum AoCAdjacencyRule {
 	case rook
 	case bishop
 	case queen
+}
+
+enum AoCDir3D: String, CaseIterable {
+	case up = "U"
+	case down = "D"
+	case left = "L"
+	case right = "R"
+	case forward = "F"
+	case back = "B"
+	
+	var offset: AoCCoord3D {
+		switch self {
+		case .up:
+			return AoCCoord3D(x: 0, y: 0, z: 1)
+		case .down:
+			return AoCCoord3D(x: 0, y: 0, z: -1)
+		case .left:
+			return AoCCoord3D(x: -1, y: 0, z: 0)
+		case .right:
+			return AoCCoord3D(x: 1, y: 0, z: 0)
+		case .forward:
+			return AoCCoord3D(x: 0, y: -1, z: 0)
+		case .back:
+			return AoCCoord3D(x: 0, y: 1, z: 0)
+		}
+	}
 }
 
 enum AoCDir: String, CaseIterable {
@@ -112,6 +138,89 @@ enum AoCTurn: Int, CaseIterable {
 	}
 }
 
+
+var _coord3DOffsets = Dictionary<AoCAdjacencyRule, [AoCCoord3D]>()
+
+struct AoCCoord3D: Hashable, Equatable, CustomDebugStringConvertible {
+	let x: Int
+	let y: Int
+	let z: Int
+	
+	static var origin: AoCCoord3D {
+		return AoCCoord3D(x: 0, y: 0, z:0)
+	}
+	
+	static func +(left: AoCCoord3D, right: AoCCoord3D) -> AoCCoord3D {
+		return AoCCoord3D(x: left.x + right.x,
+						  y: left.y + right.y,
+						  z: left.z + right.z)
+	}
+	
+	static func -(left: AoCCoord3D, right: AoCCoord3D) -> AoCCoord3D {
+		return AoCCoord3D(x: left.x - right.x,
+						  y: left.y - right.y,
+						  z: left.z - right.z)
+	}
+	
+	static func getAdjacentOffsets(rule: AoCAdjacencyRule = .rook) -> [AoCCoord3D] {
+		assert(rule == .rook) // Others not implemented yet
+		if _coord3DOffsets.keys.contains(rule) {
+			return _coord3DOffsets[rule]!
+		}
+		
+		var offsets: [AoCCoord3D]
+		
+		switch rule {
+		case .rook:
+			offsets = [AoCDir3D.up.offset, AoCDir3D.down.offset,
+					   AoCDir3D.left.offset, AoCDir3D.right.offset,
+					   AoCDir3D.forward.offset, AoCDir3D.back.offset]
+		case .bishop:
+			offsets = []
+		case .queen:
+			offsets = []
+		}
+		
+		_coord3DOffsets[rule] = offsets
+		return offsets
+	}
+	
+	func manhattanDistance(to other: AoCCoord3D) -> Int {
+		return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z)
+	}
+	
+	func isAdjacent(to other: AoCCoord3D, rule: AoCAdjacencyRule = .rook) -> Bool {
+		switch rule {
+		case .rook:
+			return self.manhattanDistance(to: other) == 1
+		case .bishop:
+			return abs(x - other.x) == 1 && abs(y - other.y) == 1 && abs(z - other.z) == 1
+		case .queen:
+			return (self.manhattanDistance(to: other) == 1) ||
+			(abs(x - other.x) == 1 && abs(y - other.y) == 1 && abs(z - other.z) == 1)
+		}
+	}
+	
+	func getAdjacentCoords(rule: AoCAdjacencyRule = .rook) -> [AoCCoord3D] {
+		var result = [AoCCoord3D]()
+		for offset in AoCCoord3D.getAdjacentOffsets(rule: rule) {
+			result.append(self + offset)
+		}
+		return result
+	}
+	
+	func offset(direction: AoCDir3D) -> AoCCoord3D {
+		return self + direction.offset
+	}
+	
+	var description: String {
+		return "[\(x),\(y),\(z)]"
+	}
+	
+	var debugDescription: String {
+		return description
+	}
+}
 
 var _coordOffsets = Dictionary<AoCAdjacencyRule, [AoCCoord2D]>()
 

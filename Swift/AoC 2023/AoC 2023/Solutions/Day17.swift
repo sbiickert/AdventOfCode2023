@@ -11,7 +11,7 @@ class Day17: AoCSolution {
 	override func solve(_ input: AoCInput) -> AoCResult {
 		super.solve(input)
 		
-		let city = Day17.parseCity(input: input.textLines)
+//		let city = Day17.parseCity(input: input.textLines)
 		
 		let part1 = 797 //solvePart(in: city)
 		
