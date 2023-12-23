@@ -307,6 +307,25 @@ struct AoCCoord2D: Hashable, Equatable, CustomDebugStringConvertible {
         return self + direction.offset
     }
     
+    func direction(to other: AoCCoord2D) -> AoCDir? {
+        guard self != other else { return nil }
+        let diff = other - self
+        if diff.y > 0 {
+            if diff.x < 0 { return .nw }
+            else if diff.x == 0 { return .north }
+            else { return .ne}
+        }
+        else if diff.y == 0 {
+            if diff.x < 0 { return .west }
+            else          { return .east }
+        }
+        else {
+            if diff.x < 0 { return .sw }
+            else if diff.x == 0 { return .south }
+            else { return .se}
+        }
+    }
+    
     var description: String {
         return "[\(x),\(y)]"
     }

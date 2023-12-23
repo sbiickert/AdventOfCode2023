@@ -48,6 +48,8 @@
 		379C0AE42B2A47AF00AB4F5F /* Day13.swift in Sources */ = {isa = PBXBuildFile; fileRef = 379C0AE22B2A47AF00AB4F5F /* Day13.swift */; };
 		37A06EFD2B2DF90100361F4C /* Day16.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A06EFC2B2DF90100361F4C /* Day16.swift */; };
 		37A06EFE2B2DF90100361F4C /* Day16.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A06EFC2B2DF90100361F4C /* Day16.swift */; };
+		37E1BE832B377A9B00E1785C /* Day23.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E1BE822B377A9B00E1785C /* Day23.swift */; };
+		37E1BE842B377A9B00E1785C /* Day23.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E1BE822B377A9B00E1785C /* Day23.swift */; };
 		37ECEFE22B2F93820008B90A /* Day17.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ECEFE12B2F93820008B90A /* Day17.swift */; };
 		37ECEFE32B2F93820008B90A /* Day17.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ECEFE12B2F93820008B90A /* Day17.swift */; };
 /* End PBXBuildFile section */
@@ -92,6 +94,7 @@
 		378CBBF72B155D81009C230A /* AoCGridTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AoCGridTests.swift; sourceTree = "<group>"; };
 		379C0AE22B2A47AF00AB4F5F /* Day13.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day13.swift; sourceTree = "<group>"; };
 		37A06EFC2B2DF90100361F4C /* Day16.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day16.swift; sourceTree = "<group>"; };
+		37E1BE822B377A9B00E1785C /* Day23.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day23.swift; sourceTree = "<group>"; };
 		37ECEFE12B2F93820008B90A /* Day17.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day17.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -171,6 +174,7 @@
 		378CBBE42B155609009C230A /* Solutions */ = {
 			isa = PBXGroup;
 			children = (
+				37E1BE822B377A9B00E1785C /* Day23.swift */,
 				376CD3352B367BBE00290AB6 /* Day22.swift */,
 				3767AAE82B34C4D300946974 /* Day21.swift */,
 				371998FA2B30DB84001CA105 /* Day18.swift */,
@@ -293,6 +297,7 @@
 				37ECEFE22B2F93820008B90A /* Day17.swift in Sources */,
 				375584552B235243005A9544 /* Day08.swift in Sources */,
 				378CBBC22B15550E009C230A /* main.swift in Sources */,
+				37E1BE832B377A9B00E1785C /* Day23.swift in Sources */,
 				3785D65E2B28B8F400FBC3A8 /* Day12.swift in Sources */,
 				3767AAE92B34C4D300946974 /* Day21.swift in Sources */,
 			);
@@ -304,6 +309,7 @@
 			files = (
 				378CBBF32B155C46009C230A /* AoCSolutionTests.swift in Sources */,
 				378CBBF62B155D42009C230A /* AoCGrid2D.swift in Sources */,
+				37E1BE842B377A9B00E1785C /* Day23.swift in Sources */,
 				379C0AE42B2A47AF00AB4F5F /* Day13.swift in Sources */,
 				378CBBF82B155D81009C230A /* AoCGridTests.swift in Sources */,
 				378CBBE12B1555DF009C230A /* AoCSpatial.swift in Sources */,
