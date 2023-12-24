@@ -19,36 +19,52 @@ class Day23: AoCSolution {
 		
 		parseNetwork(input: input.textLines)
 		
-		let part1 = solvePartOne()
-		
-		return AoCResult(part1: "\(part1)", part2: "world")
+		let part1 = solvePart(ignoreSlopes: false)
+
+		let part2 = solvePart(ignoreSlopes: true)
+
+		return AoCResult(part1: "\(part1)", part2: "\(part2)")
 	}
 	
-	func solvePartOne() -> Int {
+	func solvePart(ignoreSlopes:Bool) -> Int {
 		let startX = intersections[start.description]!
-		var vSet = Set<Intersection>()
-		let longest = findLongestPath(from:startX, visited: vSet)
+		let vSet = Set<Intersection>()
+		let longest = findLongestPath(from:startX, visited: vSet, path:[], ignoreSlopes: ignoreSlopes)
 
 		return longest
 	}
 	
-	func findLongestPath(from: Intersection, visited visitedImmutable: Set<Intersection>) -> Int {
+	func findLongestPath(from: Intersection, 
+						 visited visitedImmutable: Set<Intersection>,
+						 path pathImmutable: [Link],
+						 ignoreSlopes: Bool) -> Int {
 		var longest = 0
 		var visited = visitedImmutable
+		assert(!visited.contains(from))
 		visited.insert(from)
-		if let links = network[from.id] {
-			for var link in links {
-				if link.toID == from.id {
-					link = link.inverted()
-				}
-				if [.forward, .both].contains(link.direction) == false { continue }
-				let toIntersection = intersections[link.toID]!
-				if visited.contains(toIntersection) { continue }
-				var length = link.length
-				if toIntersection.location == end { return length }
-				length += findLongestPath(from: toIntersection, visited: visited)
-				longest = max(longest,length)
+		
+		let links = network[from.id]!
+		for var link in links {
+			var path = pathImmutable
+			
+			if link.toID == from.id {
+				link = link.inverted()
 			}
+			if !ignoreSlopes && [.forward, .both].contains(link.direction) == false { continue }
+			let toIntersection = intersections[link.toID]!
+			if visited.contains(toIntersection) { continue }
+			path.append(link)
+			var length = link.length
+			if toIntersection.location == end {
+				let totalLength = path.map({$0.length}).reduce(0, +)
+				if totalLength == 7090 {
+					print("Reached end in \(totalLength)")
+					print("\(path.map({$0.toID}))")
+				}
+				return length
+			}
+			length += findLongestPath(from: toIntersection, visited: visited, path: path, ignoreSlopes: ignoreSlopes)
+			longest = max(longest,length)
 		}
 		return longest
 	}
@@ -86,7 +102,11 @@ class Day23: AoCSolution {
 		// Intersections are not entered into visited (b/c multiple paths could lead to them)
 		// Eliminate neighbors that represent a backtrack to the most recent intersection (from)
 		var neighbors = map.neighbourCoords(at: loc)
-			.filter({!visited.contains($0) && $0.description != from && map.stringValue(at: $0) != "#"})
+			.filter({
+				!visited.contains($0) &&
+				$0.description != from && 
+				map.stringValue(at: $0) != "#"
+			})
 		while neighbors.count == 1 {
 			visited.insert(loc)
 			let nextLoc = neighbors.first!
@@ -96,14 +116,19 @@ class Day23: AoCSolution {
 				if movement == dir { downhill = true }
 				else { uphill = true}
 			}
+			if intersectionLocations.contains(loc) {break}
 			loc = nextLoc
 			length += 1
 			//if loc == end { break } // not needed, following code would return 0 neighbors
 			neighbors = map.neighbourCoords(at: loc)
-				.filter({!visited.contains($0) && map.stringValue(at: $0) != "#"})
+				.filter({
+					(!visited.contains($0) || intersectionLocations.contains($0)) &&
+					map.stringValue(at: $0) != "#"
+				})
 		}
 		
 		// Reached next intersection
+		visited.insert(loc)
 		intersectionLocations.insert(loc)
 		let intersection = Intersection(id: loc.description, location: loc)
 		intersections[intersection.id] = intersection
@@ -146,7 +171,7 @@ enum LinkDirection {
 	case none
 }
 
-struct Link {
+struct Link: CustomDebugStringConvertible {
 	let fromID: String
 	let toID: String
 	let length: Int
@@ -163,5 +188,9 @@ struct Link {
 			d = direction
 		}
 		return Link(fromID: toID, toID: fromID, length: length, direction: d)
+	}
+	
+	var debugDescription: String {
+		return "Link \(fromID)-->\(toID) \(length)"
 	}
 }
