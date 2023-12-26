@@ -146,6 +146,10 @@ struct AoCCoord3D: Hashable, Equatable, CustomDebugStringConvertible {
     let y: Int
     let z: Int
     
+    var dblX: Double { return Double(x) }
+    var dblY: Double { return Double(y) }
+    var dblZ: Double { return Double(z) }
+    
     static var origin: AoCCoord3D {
         return AoCCoord3D(x: 0, y: 0, z:0)
     }

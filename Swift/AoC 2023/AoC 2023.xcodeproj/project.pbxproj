@@ -52,6 +52,8 @@
 		37E1BE842B377A9B00E1785C /* Day23.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E1BE822B377A9B00E1785C /* Day23.swift */; };
 		37ECEFE22B2F93820008B90A /* Day17.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ECEFE12B2F93820008B90A /* Day17.swift */; };
 		37ECEFE32B2F93820008B90A /* Day17.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ECEFE12B2F93820008B90A /* Day17.swift */; };
+		37F3B0C72B38D3300032AB07 /* Day24.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3B0C62B38D3300032AB07 /* Day24.swift */; };
+		37F3B0C82B38D3300032AB07 /* Day24.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3B0C62B38D3300032AB07 /* Day24.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -96,6 +98,7 @@
 		37A06EFC2B2DF90100361F4C /* Day16.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day16.swift; sourceTree = "<group>"; };
 		37E1BE822B377A9B00E1785C /* Day23.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day23.swift; sourceTree = "<group>"; };
 		37ECEFE12B2F93820008B90A /* Day17.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day17.swift; sourceTree = "<group>"; };
+		37F3B0C62B38D3300032AB07 /* Day24.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day24.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +177,7 @@
 		378CBBE42B155609009C230A /* Solutions */ = {
 			isa = PBXGroup;
 			children = (
+				37F3B0C62B38D3300032AB07 /* Day24.swift */,
 				37E1BE822B377A9B00E1785C /* Day23.swift */,
 				376CD3352B367BBE00290AB6 /* Day22.swift */,
 				3767AAE82B34C4D300946974 /* Day21.swift */,
@@ -281,6 +285,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				376CD3362B367BBE00290AB6 /* Day22.swift in Sources */,
+				37F3B0C72B38D3300032AB07 /* Day24.swift in Sources */,
 				378CBBD92B1555AD009C230A /* AoCSpatial.swift in Sources */,
 				378CBBF52B155D42009C230A /* AoCGrid2D.swift in Sources */,
 				378CBBEE2B155AF7009C230A /* AoCInput.swift in Sources */,
@@ -325,6 +330,7 @@
 				37ECEFE32B2F93820008B90A /* Day17.swift in Sources */,
 				375584562B235243005A9544 /* Day08.swift in Sources */,
 				378CBBE92B1557E6009C230A /* Day00.swift in Sources */,
+				37F3B0C82B38D3300032AB07 /* Day24.swift in Sources */,
 				3781146E2B20C1F200F63025 /* Day05.swift in Sources */,
 				378CBBE22B1555E1009C230A /* AoCString.swift in Sources */,
 				3767AAEA2B34C4D300946974 /* Day21.swift in Sources */,
