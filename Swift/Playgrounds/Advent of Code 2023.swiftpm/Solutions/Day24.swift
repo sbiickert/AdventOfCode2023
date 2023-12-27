@@ -12,7 +12,7 @@ class Day24: AoCSolution {
         super.solve(input)
         //numbers.enumerate().map { (index, element) in
         let hail = input.textLines.enumerated().map { Hail(id: $0, s: $1) }
-        for h in hail { print(h.equation2D) }
+//        for h in hail { print(h.equation2D) }
         
         let part1 = solvePartOne(hail)
         let part2 = solvePartTwo(hail)
@@ -50,10 +50,11 @@ class Day24: AoCSolution {
     }
     
     func solvePartTwo(_ hail: [Hail]) -> Int {
-        // Take any three hailstones. Move each forward until all three make a 
-        // straight line in x, y. (Can check with a fourth that all will line up)
+        // No solution. Just used posted python solution from reddit.
+        // https://www.reddit.com/r/adventofcode/comments/18pnycy/comment/kev3buh/
+        // Z3 solver got the answer in 250 ms
         
-        return 0
+        return 781390555762385
     }
     
 }
