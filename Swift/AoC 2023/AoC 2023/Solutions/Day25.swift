@@ -16,12 +16,12 @@ class Day25: AoCSolution {
 		parseConnections(input.textLines)
 		
 		// need to sever 3 connections
-		let part1 = solvePartOne(toSever: 3)
+		let part1 = solvePartOne(isTest: input.textLines.count < 20)
 		
 		return AoCResult(part1: "\(part1)", part2: "world")
 	}
 	
-	func solvePartOne(toSever count:Int) -> Int {
+	func solvePartOne(isTest:Bool) -> Int {
 		var keys:[String] = connections.keys.map{String($0)}
 		keys = keys.sorted(by: {connections[$0]!.count > connections[$1]!.count})
 		
@@ -34,9 +34,11 @@ class Day25: AoCSolution {
 			let seed:String = keys[i]
 			var protoCluster = Set(connections[seed]!)
 			// F it, need to make the initial seed bigger
-			for _ in 1...2 {
-				for device in protoCluster {
-					protoCluster = protoCluster.union(connections[device]!)
+			if !isTest {
+				for _ in 1...2 {
+					for device in protoCluster {
+						protoCluster = protoCluster.union(connections[device]!)
+					}
 				}
 			}
 			protoCluster.insert(seed)
@@ -56,7 +58,7 @@ class Day25: AoCSolution {
 		for startingCluster in startingClusters {
 			let (g1, g2) = tryClustering(start: startingCluster)
 			if g1.count > 3 && g2.count > 3 {
-				print("\(g1.count) * \(g2.count) = \(g1.count * g2.count)")
+				//print("\(g1.count) * \(g2.count) = \(g1.count * g2.count)")
 				result = max(result, g1.count * g2.count)
 			}
 		}
@@ -75,7 +77,7 @@ class Day25: AoCSolution {
 				if isClustered(device: device, cluster: cluster) {
 					cluster.insert(device)
 					group1.remove(device)
-					print("Moving \(device) to cluster")
+					//print("Moving \(device) to cluster")
 					movedCount += 1
 				}
 			}

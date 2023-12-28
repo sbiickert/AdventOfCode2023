@@ -15,51 +15,81 @@ class Day25: AoCSolution {
         
         parseConnections(input.textLines)
         
-        // need to sever 3 connections in challenge, 1 in test
-        let part1 = solvePartOne(toSever: input.textLines.count > 20 ? 3 : 1)
+        // need to sever 3 connections
+        let part1 = solvePartOne(isTest: input.textLines.count < 20)
         
         return AoCResult(part1: "\(part1)", part2: "world")
     }
     
-    func solvePartOne(toSever count:Int) -> Int {
-        var connections = connections
-//        for name in connections.keys.sorted() {
-//            print("\(name): \(connections[name]!)")
-//        }
-        // Build a cluster of devices until there are only _count_ outgoing
-        var cluster = Dictionary<String, Set<String>>()
-        // Start with a random device as a seed
-        let name:String = connections.keys.first!
-        let seed = connections.removeValue(forKey: name)!
-        // Outgoing links are empty Sets
-        cluster[name] = seed // Not an empty set
-        for connectedName in seed {
-            cluster[connectedName] = Set<String>() // empty set
-        }
-        var outgoing = Set(cluster.keys.filter({cluster[$0]!.isEmpty}))
-        while outgoing.count > count {
-            for outName in outgoing {
-                // Does device outName have at least two connections to the outgoing set?
-                // One connection is the fact that it's in outgoing. Looking for another.
-                let outSet = connections[outName]!
-                if !outgoing.intersection(outSet).isEmpty {
-                    connections.removeValue(forKey: outName)
-                    cluster[outName] = outSet
-                    for connectedName in outSet {
-                        if !cluster.keys.contains(connectedName) {
-                            cluster[connectedName] = Set<String>()
-                        }
+    func solvePartOne(isTest:Bool) -> Int {
+        var keys:[String] = connections.keys.map{String($0)}
+        keys = keys.sorted(by: {connections[$0]!.count > connections[$1]!.count})
+        
+        var startingClusters = [Set<String>]()
+        
+        for i in 0..<keys.count {
+            var cluster = Set<String>()
+            var group1 = Set(connections.keys)
+            
+            let seed:String = keys[i]
+            var protoCluster = Set(connections[seed]!)
+            // F it, need to make the initial seed bigger
+            if !isTest {
+                for _ in 1...2 {
+                    for device in protoCluster {
+                        protoCluster = protoCluster.union(connections[device]!)
                     }
                 }
             }
-            outgoing = Set(cluster.keys.filter({cluster[$0]!.isEmpty}))
+            protoCluster.insert(seed)
+            for device in protoCluster {
+                if isClustered(device: device, cluster: protoCluster) {
+                    cluster.insert(device)
+                    group1.remove(device)
+                    //print("Moving \(device) to cluster")
+                }
+            }
+            if cluster.count > 1 {
+                startingClusters.append(cluster)
+            }
         }
-        print("Remaining outgoing is \(outgoing)")
         
-        // Will be left with cluster and connections. Multiply their counts
-        print("cluster: \(cluster.keys)")
-        print("connections: \(connections.keys)")
-        return cluster.count * connections.count
+        var result = -1
+        for startingCluster in startingClusters {
+            let (g1, g2) = tryClustering(start: startingCluster)
+            if g1.count > 3 && g2.count > 3 {
+                //print("\(g1.count) * \(g2.count) = \(g1.count * g2.count)")
+                result = max(result, g1.count * g2.count)
+            }
+        }
+        
+        return result // 35535 too low
+    }
+    
+    func tryClustering(start: Set<String>) -> (Set<String>, Set<String>) {
+        var cluster = start
+        var group1 = Set(connections.keys).subtracting(start)
+        
+        var movedCount = start.count
+        while movedCount > 0 {
+            movedCount = 0
+            for device in group1 {
+                if isClustered(device: device, cluster: cluster) {
+                    cluster.insert(device)
+                    group1.remove(device)
+                    //print("Moving \(device) to cluster")
+                    movedCount += 1
+                }
+            }
+        }
+        
+        return (cluster,group1)
+    }
+    
+    func isClustered(device:String, cluster:Set<String>) -> Bool {
+        let deviceConnections = Set(connections[device]!)
+        let intersect = deviceConnections.intersection(cluster)
+        return intersect.count >= 2
     }
     
     func parseConnections(_ input:[String]) {
