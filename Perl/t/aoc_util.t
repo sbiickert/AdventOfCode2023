@@ -3,7 +3,7 @@ use Test::Simple tests => 11;
 
 use AOC::Util;
 
-my $INPUT_PATH = '../input';
+my $INPUT_PATH = '../Input';
 my $INPUT_FILE = 'day00_test.txt';
 
 say "Perl version : ".$];
