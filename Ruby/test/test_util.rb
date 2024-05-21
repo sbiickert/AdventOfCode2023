@@ -50,24 +50,6 @@ class TestUtil < Minitest::Test
 		refute(Util.approx_equal?(f1, f3));
 	end
 	
-	def test_reduce()
-		fractions = [[2, 4], [2, 6], [2, 8], [3,13], [3,12,99], [1]]
-		reduced = [];
-		fractions.each { |frac|
-			r = Util.reduce(frac)
-			reduced << r
-		}
-	
-		p reduced
-		
-		assert(reduced[0][0] == 1 && reduced[0][1] == 2, "Reduction of 2/4.");
-		assert(reduced[1][0] == 1 && reduced[1][1] == 3, "Reduction of 2/6.");
-		assert(reduced[2][0] == 1 && reduced[2][1] == 4, "Reduction of 2/8.");
-		assert(reduced[3][0] == 3 && reduced[3][1] == 13, "Reduction of 3/13.");
-		assert(reduced[4][0] == 1 && reduced[4][1] == 4, "Reduction of 3/12.");
-		assert_nil(reduced[5], "Illegal fraction.");
-	end
-	
 	def test_gcd()
 		assert_equal(2, Util.gcd(2,4), 'GCD of 2 and 4')
 		assert_equal(5, Util.gcd(15,20), 'GCD of 15 and 20')

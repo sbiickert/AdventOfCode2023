@@ -74,21 +74,8 @@ end
 
 
 # reduce
-
-# If a fraction can be reduced by dividing num and denom by an integer value
-# the reduced fraction is returned.
-
-# frac is an array with two integers representing numerator and denominator
-# Returns an array with two integers representing numerator and denominator
-def reduce(frac)
-	return nil if frac.length < 2
-	numerator, denominator = frac
-	gcd = gcd(numerator, denominator)
-	if (gcd < numerator * denominator) then
-		return [numerator / gcd, denominator / gcd]
-	end
-	[numerator, denominator]
-end
+# Removed: ruby has a rational numeric type that automatically reduces
+# e.g. 3/12r --> (1/4)
 
 
 # Greatest Common Divisor
