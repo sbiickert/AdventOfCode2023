@@ -51,4 +51,30 @@ class TestGeometry < Minitest::Test
 		assert_equal(Coord.new(1,0), adjacent_coords[0]) # N of 1,1
 	end
 
+	def test_position
+		p1 = Position.new(Coord.origin)
+		assert_equal(Coord.new(0,0), p1.coord)
+		assert_equal(:N, p1.dir)
+		
+		p2 = Position.new(Coord.new(5,5), '<')
+		assert_equal(:W, p2.dir)
+		p2 = p2.turn(:CW)
+		assert_equal(:N, p2.dir)
+		p2 = p2.turn(:CCW)
+		assert_equal(:W, p2.dir)
+		6.times do
+			p2 = p2.turn('CCW')
+		end
+		assert_equal(:E, p2.dir)
+		
+		p3 = p2.move_forward
+		assert_equal(Coord.new(6,5), p3.coord)
+		p4 = p3.move_forward(4)
+		assert_equal(Coord.new(10,5), p4.coord)
+		
+		p5 = Position.new(Coord.origin, ':-)') # UNKNOWN direction
+		assert_equal(:UNKNOWN, p5.dir)
+		p6 = p5.move_forward
+		assert_equal(p5, p6)
+	end
 end

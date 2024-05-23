@@ -140,6 +140,61 @@ class Coord
 end
 
 
+class Position
+
+	@@rotation_lookup = {}
+
+	def self.rotation_lookup(rot)
+		if @@rotation_lookup.length == 0 then
+			@@rotation_lookup = {
+				:CW => :CW, 'CW' => :CW, 'R' => :CW, 'RIGHT' => :CW,
+				:CCW => :CCW, 'CCW' => :CCW, 'L' => :CCW, 'LEFT' => :CCW
+			}
+		end
+		@@rotation_lookup[rot]
+	end
+
+	attr_reader :coord, :dir
+	
+	def initialize(coord=Coord.origin, dir=:N)
+		@coord = coord
+		@dir = Coord.offset_lookup(dir)
+	end
+	
+	def == (other)
+		coord == other.coord && dir == other.dir
+	end
+	
+	def turn(rotation)
+		rot = Position.rotation_lookup(rotation)
+		step = 0
+		if rot == :CW then
+			step = 1
+		else
+			step = -1
+		end
+		
+		ordered_dirs = Coord.adjacency_rules_defn(:ROOK) # [NESW]
+		index = ordered_dirs.find_index(dir)
+		index = (index + step) % 4
+		return Position.new(coord.dup, ordered_dirs[index])
+	end
+	
+	def move_forward(distance=1)
+		offset = Coord.offset(dir)
+		move = Coord.new(offset.x * distance, offset.y * distance)
+		Position.new(coord + move, dir)
+	end
+	
+	def dup
+		Position.new(coord, dir)
+	end
+	
+	def to_s
+		"{#{coord.to_s} #{dir}}"
+	end
+end
+
 module Geometry
 	extend self
 	
