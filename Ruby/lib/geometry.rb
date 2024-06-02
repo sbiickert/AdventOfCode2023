@@ -239,6 +239,16 @@ class Extent
 		return Extent.from_ints(w, n, e, s)
 	end
 	
+	def all_coords()
+		Enumerator.new do |yielder|
+			for x in @min.x..@max.x do
+				for y in @min.y..@max.y do
+					yielder.yield(Coord.new(x,y))
+				end
+			end
+		end
+	end
+	
 end
 
 module Geometry

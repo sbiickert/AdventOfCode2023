@@ -97,5 +97,10 @@ class TestGeometry < Minitest::Test
 		assert_equal(Extent.from_ints(0,2,1,7), e3)
 		e4 = e0.inset(2)
 		assert_nil(e4)
+		all = e0.all_coords.to_a
+		assert_equal(e0.area, all.length)
+		e_big = Extent.from_ints(0,0,100000000000,100000000000)
+		assert_equal(Coord.origin, e_big.all_coords.first) # lazy enumerator :-)
+		
 	end
 end
