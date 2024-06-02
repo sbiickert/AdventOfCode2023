@@ -195,6 +195,52 @@ class Position
 	end
 end
 
+class Extent
+
+	def self.from_ints(xmin, ymin, xmax, ymax)
+		Extent.new(Coord.new(xmin, ymin), Coord.new(xmax, ymax))
+	end
+	
+	def initialize(*coords)
+		# Sanity code: all coords passed are sorted regardless of order given
+		x_values = coords.map {|c| c.x}.sort
+		y_values = coords.map {|c| c.y}.sort
+		@min = Coord.new(x_values[0], y_values[0])
+		@max = Coord.new(x_values[-1], y_values[-1])
+	end
+
+	attr_reader :min, :max
+	
+	def nw = @min
+	def se = @max
+	def ne = Coord.new(@max.x, @min.y)
+	def sw = Coord.new(@min.x, @max.y)
+	
+	def == (other)
+		@min == other.min && @max == other.max
+	end
+	
+	def width = @max.x - @min.x + 1
+	def height = @max.y - @min.y + 1
+	def area = width * height
+	
+	def expand(to_fit_coord)
+		Extent.new(@min, @max, to_fit_coord)
+	end
+	
+	def inset(amount)
+		n = @min.y + amount
+		s = @max.y - amount
+		w = @min.x + amount
+		e = @max.x - amount
+		if n > s || w > e then
+			return nil
+		end
+		return Extent.from_ints(w, n, e, s)
+	end
+	
+end
+
 module Geometry
 	extend self
 	

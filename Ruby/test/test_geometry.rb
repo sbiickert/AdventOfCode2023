@@ -77,4 +77,25 @@ class TestGeometry < Minitest::Test
 		p6 = p5.move_forward
 		assert_equal(p5, p6)
 	end
+	
+	def test_extent
+		e0 = Extent.new(Coord.new(-1,1), Coord.new(2,8))
+		assert_equal(-1, e0.min.x)
+		assert_equal(2, e0.max.x)
+		assert_equal(1, e0.min.y)
+		assert_equal(8, e0.max.y)
+		assert_equal(Coord.new(2,1), e0.ne)
+		assert_equal(Coord.new(-1,8), e0.sw)
+		e1 = Extent.from_ints(-1,1,2,8)
+		assert_equal(e0, e1)
+		e2 = e0.expand(Coord.new(3,3))
+		assert_equal(Extent.from_ints(-1,1,3,8), e2)
+		assert_equal(5, e2.width)
+		assert_equal(8, e2.height)
+		assert_equal(40, e2.area)
+		e3 = e0.inset(1)
+		assert_equal(Extent.from_ints(0,2,1,7), e3)
+		e4 = e0.inset(2)
+		assert_nil(e4)
+	end
 end
