@@ -80,6 +80,7 @@ class TestGeometry < Minitest::Test
 	
 	def test_extent
 		e0 = Extent.new(Coord.new(-1,1), Coord.new(2,8))
+		assert_equal('{min: [-1,1], max: [2,8]}', e0.to_s)
 		assert_equal(-1, e0.min.x)
 		assert_equal(2, e0.max.x)
 		assert_equal(1, e0.min.y)
@@ -97,10 +98,37 @@ class TestGeometry < Minitest::Test
 		assert_equal(Extent.from_ints(0,2,1,7), e3)
 		e4 = e0.inset(2)
 		assert_nil(e4)
+		
 		all = e0.all_coords.to_a
 		assert_equal(e0.area, all.length)
 		e_big = Extent.from_ints(0,0,100000000000,100000000000)
 		assert_equal(Coord.origin, e_big.all_coords.first) # lazy enumerator :-)
 		
+		e_intersection = Extent.from_ints(1,1,10,10).intersect(Extent.from_ints(5,5,12,12))
+		assert_equal(Extent.from_ints(5,5,10,10), e_intersection)
+		e_intersection = Extent.from_ints(1,1,10,10).intersect(Extent.from_ints(5,5,7,7))
+		assert_equal(Extent.from_ints(5,5,7,7), e_intersection)
+		e_intersection = Extent.from_ints(1,1,10,10).intersect(Extent.from_ints(1,1,12,2))
+		assert_equal(Extent.from_ints(1,1,10,2), e_intersection)
+		e_intersection = Extent.from_ints(1,1,10,10).intersect(Extent.from_ints(11,11,12,12))
+		assert_nil(e_intersection)
+		e_intersection = Extent.from_ints(1,1,10,10).intersect(Extent.from_ints(1,10,10,20))
+		assert_equal(Extent.from_ints(1,10,10,10), e_intersection)
+		
+		products = Extent.from_ints(1,1,10,10).union(Extent.from_ints(5,5,12,12))
+		expected = [Extent.from_ints(5,5,10,10),Extent.from_ints(1,1,4,4),Extent.from_ints(1,5,4,10),Extent.from_ints(5,1,10,4),Extent.from_ints(11,11,12,12),Extent.from_ints(11,5,12,10),Extent.from_ints(5,11,10,12)]
+		assert_equal(expected, products)
+		products = Extent.from_ints(1,1,10,10).union(Extent.from_ints(5,5,7,7))
+		expected = [Extent.from_ints(5,5,7,7),Extent.from_ints(1,1,4,4),Extent.from_ints(1,8,4,10),Extent.from_ints(1,5,4,7),Extent.from_ints(8,1,10,4),Extent.from_ints(8,8,10,10),Extent.from_ints(8,5,10,7),Extent.from_ints(5,1,7,4),Extent.from_ints(5,8,7,10)]
+		assert_equal(expected, products)
+		products = Extent.from_ints(1,1,10,10).union(Extent.from_ints(1,1,12,2))
+		expected = [Extent.from_ints(1,1,10,2),Extent.from_ints(1,3,10,10),Extent.from_ints(11,1,12,2)]
+		assert_equal(expected, products)
+		products = Extent.from_ints(1,1,10,10).union(Extent.from_ints(11,11,12,12))
+		expected = [Extent.from_ints(1,1,10,10),Extent.from_ints(11,11,12,12)]
+		assert_equal(expected, products)
+		products = Extent.from_ints(1,1,10,10).union(Extent.from_ints(1,10,10,20))
+		expected = [Extent.from_ints(1,10,10,10),Extent.from_ints(1,1,10,9),Extent.from_ints(1,11,10,20)]
+		assert_equal(expected, products)
 	end
 end

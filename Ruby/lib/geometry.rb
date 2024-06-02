@@ -217,6 +217,7 @@ class Extent
 	def sw = Coord.new(@min.x, @max.y)
 	
 	def == (other)
+		return nil if other == nil
 		@min == other.min && @max == other.max
 	end
 	
@@ -239,6 +240,65 @@ class Extent
 		return Extent.from_ints(w, n, e, s)
 	end
 	
+	def intersect(other)
+		common_min_x = [@min.x, other.min.x].max
+		common_max_x = [@max.x, other.max.x].min
+		if common_max_x < common_min_x then
+			return nil
+		end
+		common_min_y = [@min.y, other.min.y].max
+		common_max_y = [@max.y, other.max.y].min
+		if common_max_y < common_min_y then
+			return nil
+		end
+
+		return Extent.new(Coord.new(common_min_x, common_min_y), 
+						  Coord.new(common_max_x, common_max_y))
+	end
+	
+	def union(other)
+		if self == other then
+			return [self]
+		end
+		results = []
+		e_int = self.intersect(other)
+		if e_int == nil then
+			return [self, other]
+		end
+		results.push(e_int)
+		
+		[self, other].each do |e|
+			next if e == e_int
+			
+			if (e.nw.x < e_int.nw.x) then # xmin
+				if (e.nw.y < e_int.nw.y) then # ymin
+					results.push(Extent.from_ints(e.nw.x, e.nw.y, e_int.nw.x-1, e_int.nw.y-1))
+				end
+				if (e.se.y > e_int.se.y) then # ymax
+					results.push(Extent.from_ints(e.nw.x, e_int.se.y+1, e_int.nw.x-1, e.se.y))
+				end
+				results.push(Extent.from_ints(e.nw.x, e_int.nw.y, e_int.nw.x-1, e_int.se.y))
+			end
+			if (e_int.se.x < e.se.x) then
+				if (e.nw.y < e_int.nw.y) then # ymin
+					results.push(Extent.from_ints(e_int.se.x+1, e.nw.y, e.se.x, e_int.nw.y-1))
+				end
+				if (e.se.y > e_int.se.y) then # ymax
+					results.push(Extent.from_ints(e_int.se.x+1, e_int.se.y+1, e.se.x, e.se.y))
+				end
+				results.push(Extent.from_ints(e_int.se.x+1, e_int.nw.y, e.se.x, e_int.se.y))
+			end
+			if (e.nw.y < e_int.nw.y) then #ymin
+				results.push(Extent.from_ints(e_int.nw.x, e.nw.y, e_int.se.x, e_int.nw.y-1))
+			end
+			if (e_int.se.y < e.se.y) then #ymax
+				results.push(Extent.from_ints(e_int.nw.x, e_int.se.y+1, e_int.se.x, e.se.y))
+			end
+			
+		end
+		results
+	end
+	
 	def all_coords()
 		Enumerator.new do |yielder|
 			for x in @min.x..@max.x do
@@ -249,6 +309,9 @@ class Extent
 		end
 	end
 	
+	def to_s()
+		"{min: #{@min.to_s}, max: #{@max.to_s}}"
+	end
 end
 
 module Geometry
