@@ -86,6 +86,13 @@ class Coord
 		self.x == other_coord.x && self.y == other_coord.y
 	end
 	
+	# The following allows Coord instances to be used as Hash keys
+	alias eql? ==
+	
+	def hash()
+		@x.hash ^ @y.hash # XOR
+	end
+	
 	def + (other_coord)
 		Coord.new(x + other_coord.x, y + other_coord.y)
 	end
@@ -240,6 +247,10 @@ class Extent
 		return Extent.from_ints(w, n, e, s)
 	end
 	
+	def contains?(coord)
+		(@min.x .. @max.x).include?(coord.x) && (@min.y .. @max.y).include?(coord.y)
+	end
+	
 	def intersect(other)
 		common_min_x = [@min.x, other.min.x].max
 		common_max_x = [@max.x, other.max.x].min
@@ -314,7 +325,7 @@ class Extent
 	end
 end
 
-module Geometry
-	extend self
-	
-end
+# module Geometry
+# 	extend self
+# 	
+# end

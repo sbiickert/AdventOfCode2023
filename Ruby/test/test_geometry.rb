@@ -99,11 +99,17 @@ class TestGeometry < Minitest::Test
 		e4 = e0.inset(2)
 		assert_nil(e4)
 		
+		assert(Extent.from_ints(1,1,2,2).contains?(Coord.new(1,1)))
+		assert(Extent.from_ints(1,1,2,2).contains?(Coord.new(2,2)))
+		refute(Extent.from_ints(1,1,2,2).contains?(Coord.new(3,1)))
+		
 		all = e0.all_coords.to_a
 		assert_equal(e0.area, all.length)
 		e_big = Extent.from_ints(0,0,100000000000,100000000000)
 		assert_equal(Coord.origin, e_big.all_coords.first) # lazy enumerator :-)
-		
+	end
+	
+	def test_extent_intersect
 		e_intersection = Extent.from_ints(1,1,10,10).intersect(Extent.from_ints(5,5,12,12))
 		assert_equal(Extent.from_ints(5,5,10,10), e_intersection)
 		e_intersection = Extent.from_ints(1,1,10,10).intersect(Extent.from_ints(5,5,7,7))
@@ -114,7 +120,9 @@ class TestGeometry < Minitest::Test
 		assert_nil(e_intersection)
 		e_intersection = Extent.from_ints(1,1,10,10).intersect(Extent.from_ints(1,10,10,20))
 		assert_equal(Extent.from_ints(1,10,10,10), e_intersection)
-		
+	end
+	
+	def test_extent_union		
 		products = Extent.from_ints(1,1,10,10).union(Extent.from_ints(5,5,12,12))
 		expected = [Extent.from_ints(5,5,10,10),Extent.from_ints(1,1,4,4),Extent.from_ints(1,5,4,10),Extent.from_ints(5,1,10,4),Extent.from_ints(11,11,12,12),Extent.from_ints(11,5,12,10),Extent.from_ints(5,11,10,12)]
 		assert_equal(expected, products)
