@@ -116,7 +116,14 @@ class Grid
 	end
 	
 	def load(rows)
-	
+		for r in 0 .. rows.length-1 do
+			chars = rows[r].split('')
+			for c in 0 .. chars.length-1 do
+				if chars[c] != @default then
+					self.set(Coord.new(c, r), chars[c])
+				end
+			end
+		end
 	end
 end
 

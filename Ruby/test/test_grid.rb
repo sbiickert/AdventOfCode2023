@@ -2,6 +2,7 @@
 
 require 'minitest/autorun'
 require 'grid'
+require 'util'
 
 class TestGrid < Minitest::Test
 
@@ -67,6 +68,17 @@ class TestGrid < Minitest::Test
 		g.clear(Coord.new(100,100), true)
 		small_ext = g.extent
 		assert_equal(ext, small_ext)
+	end
+	
+	def test_grid_load 
+		input_path = '../Input';
+		input_file = 'day00_test.txt';
+		input = Util.read_input("#{input_path}/#{input_file}", false)
+		
+		g = Grid.new
+		g.load(input)
+		assert_equal("G0, L0\nG0, L1\nG0, L2\nG1, L0\nG1, L1\nG2, L0\nG2, L1\nG2, L2\n", g.to_s)
+		assert_equal('2', g.get_s(Coord.new(5,2)))
 	end
 end
 
