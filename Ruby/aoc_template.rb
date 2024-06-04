@@ -7,7 +7,7 @@ require_relative 'lib/util'
 INPUT_FILE = 'day<##>_test.txt'
 #INPUT_FILE = 'day<##>_challenge.txt'
 
-input = Util.read_input('../input/#{INPUT_FILE}')
+input = Util.read_input("../Input/#{INPUT_FILE}")
 
 puts 'Advent of Code 2023, Day <##>: <##>'
 
