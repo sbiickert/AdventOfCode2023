@@ -50,7 +50,7 @@ def read_grouped_input(input_file, group_index=-1)
 	
 	groups << g if g.length > 0
 	
-	if group_index > 0 then
+	if group_index >= 0 then
 		if group_index < groups.length then
 			return groups[group_index]
 		end
