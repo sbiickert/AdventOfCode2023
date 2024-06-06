@@ -83,6 +83,7 @@ class Coord
 	def row = @x
 	
 	def == (other_coord)
+	  return false if other_coord == nil
 		self.x == other_coord.x && self.y == other_coord.y
 	end
 	
@@ -172,6 +173,13 @@ class Position
 		coord == other.coord && dir == other.dir
 	end
 	
+	# The following allows Extent instances to be used as Hash keys
+	alias eql? ==
+	
+	def hash()
+		@min.hash ^ @max.hash # XOR
+	end
+	
 	def turn(rotation)
 		rot = Position.rotation_lookup(rotation)
 		step = 0
@@ -224,7 +232,7 @@ class Extent
 	def sw = Coord.new(@min.x, @max.y)
 	
 	def == (other)
-		return nil if other == nil
+		return false if other == nil
 		@min == other.min && @max == other.max
 	end
 	
@@ -312,8 +320,8 @@ class Extent
 	
 	def all_coords()
 		Enumerator.new do |yielder|
-			for x in @min.x..@max.x do
-				for y in @min.y..@max.y do
+      for y in @min.y..@max.y do
+        for x in @min.x..@max.x do
 					yielder.yield(Coord.new(x,y))
 				end
 			end
