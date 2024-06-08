@@ -4,8 +4,8 @@ require 'util'
 #require 'geometry'
 #require 'grid'
 
-INPUT_FILE = 'day04_test.txt'
-# INPUT_FILE = 'day04_challenge.txt'
+# INPUT_FILE = 'day04_test.txt'
+INPUT_FILE = 'day04_challenge.txt'
 
 input = Util.read_input("../Input/#{INPUT_FILE}")
 
@@ -22,12 +22,17 @@ class ScratchCard
   
   attr_reader :id
   
-  def points
+  def win_count
     w_set = Set.new(@winning_numbers)
     m_set = Set.new(@my_numbers)
     common = w_set.intersection(m_set)
-    return 0 if common.length == 0
-    2**(common.length-1)
+    common.length
+  end
+  
+  def points
+    wc = win_count
+    return 0 if wc == 0
+    2**(wc-1)
   end
 end
 
@@ -41,9 +46,16 @@ def solve_part_one(cards)
 end
 
 
-def solve_part_two(input)
+def solve_part_two(cards)
   card_counts = Hash.new(default=0)
-  
+  cards.each do |card|
+    card_counts[card.id] += 1
+    wc = card.win_count
+    for i in 1..wc
+      card_counts[card.id + i] += card_counts[card.id]
+    end
+  end
+  puts "The total number of cards is #{card_counts.values.inject(:+)}"
 end
 
 cards = input.map { ScratchCard.new(_1) }
