@@ -33,12 +33,8 @@ class CamelHand
   end
   
   def type
-    calc_hand_type
-  end
-  
-  def calc_hand_type
     freq = Hash.new(default=0)
-    @source.split('').each do |card|
+    cards.each do |card|
       freq[card] += 1
     end
     
