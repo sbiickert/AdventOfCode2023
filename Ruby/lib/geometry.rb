@@ -161,6 +161,12 @@ class Position
 		end
 		@@rotation_lookup[rot]
 	end
+	
+	def self.opposite_direction(dir)
+	  dirs = Coord.adjacency_rules_defn(:QUEEN)
+	  idx = dirs.find_index(dir)
+	  dirs[(idx + 4) % 8]
+	end
 
 	attr_reader :coord, :dir
 	
@@ -195,10 +201,20 @@ class Position
 		return Position.new(coord.dup, ordered_dirs[index])
 	end
 	
+	def turn_to(dir)
+	  return Position.new(coord.dup, dir)
+	end
+	
 	def move_forward(distance=1)
 		offset = Coord.offset(dir)
 		move = Coord.new(offset.x * distance, offset.y * distance)
 		Position.new(coord + move, dir)
+	end
+	
+	def opposite_direction
+	  dirs = Coord.adjacency_rules_defn(:QUEEN)
+	  idx = dirs.find_index(dir)
+	  dirs[(idx + 4) % 8]
 	end
 	
 	def dup
