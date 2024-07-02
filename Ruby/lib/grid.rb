@@ -79,7 +79,24 @@ class Grid
 	end
 	
 	def neighbors(coord)
-		coord.get_adjacent_coords(@rule)
+	  coord.get_adjacent_coords(@rule)
+	end
+	
+	def flood_fill(coord, value)
+	  #puts "FF #{coord}, #{value}"
+	  ext = extent
+	  spilled = false
+	  if ext.contains?(coord)
+	    if @data[coord] == @data.default
+	      set(coord, value)
+	      neighbors(coord).each do |neighbor|
+	        spilled = flood_fill(neighbor, value) || spilled
+	      end
+	    end
+	  else
+	    spilled = true
+	  end
+	  spilled
 	end
 	
 	def print(markers=nil, invert_y=false)

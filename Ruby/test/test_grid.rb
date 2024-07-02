@@ -70,6 +70,30 @@ class TestGrid < Minitest::Test
 		assert_equal(ext, small_ext)
 	end
 	
+	def test_grid_fill
+	  g = Grid.new()
+    defn = ['X.....',
+            '.XXXX.',
+            '.X..X.',
+            '.X.XX.',
+            '.XXX..',
+            '.....X']
+    g.load(defn)
+    #g.print
+    c = Coord.new(0,0)
+    g.flood_fill(c, 'A') # No effect, (0,0) is not default '.'
+    assert_equal(g.get(c), 'X')
+    #g.print
+    c = Coord.new(2,2)
+    spill = g.flood_fill(c, 'B') # Fill center, return false (no spill)
+    refute(spill)
+    #g.print
+    c = Coord.new(0,1)
+    spill = g.flood_fill(c, 'C') # Fill outside, return true (spill)
+    assert(spill)
+    #g.print
+	end
+	
 	def test_grid_load 
 		input_path = '../Input';
 		input_file = 'day00_test.txt';
