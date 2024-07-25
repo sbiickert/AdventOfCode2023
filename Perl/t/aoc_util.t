@@ -1,5 +1,5 @@
 use Modern::Perl 2023;
-use Test::Simple tests => 11;
+use Test::Simple tests => 20;
 
 use AOC::Util;
 
@@ -11,6 +11,9 @@ say "Perl version : ".$];
 test_read_input("$INPUT_PATH/$INPUT_FILE");
 test_read_grouped_input("$INPUT_PATH/$INPUT_FILE");
 test_approx_equal();
+test_reduce();
+test_gcd();
+test_lcm();
 
 sub test_read_input {
 	say 'Testing reading input';
@@ -52,3 +55,31 @@ sub test_approx_equal {
 	my $f3 = 10.01;
 	ok(!approx_equal($f1, $f3), "Floats were not equal.");
 }
+
+sub test_reduce() {
+	say 'Testing fraction reduction';
+	my @fractions = ([2, 4], [2, 6], [2, 8], [3,13]);
+	my @reduced = ();
+	foreach my $frac (@fractions) {
+		my $r = reduce($frac);
+		push @reduced, $r;
+	}
+
+	ok($reduced[0][0] == 1 && $reduced[0][1] == 2, "Reduction of 2/4.");
+	ok($reduced[1][0] == 1 && $reduced[1][1] == 3, "Reduction of 2/6.");
+	ok($reduced[2][0] == 1 && $reduced[2][1] == 4, "Reduction of 2/8.");
+	ok($reduced[3][0] == 3 && $reduced[3][1] == 13, "Reduction of 3/13.");
+ }
+
+ sub test_gcd() {
+	say 'Testing GCD';
+	ok(gcd(2,4) == 2, 'GCD of 2 and 4');
+	ok(gcd(15,20) == 5, 'GCD of 15 and 20');
+	ok(gcd(13,20) == 1, 'GCD of 13 and 20');
+ }
+
+ sub test_lcm() {
+	say 'Testing LCM';
+	ok(lcm(2,3,4) == 12, 'LCM of 2, 3, 4');
+	ok(lcm(3,4,13) == 156, 'LCM of 3, 4, 13');
+ }
