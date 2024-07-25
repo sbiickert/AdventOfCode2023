@@ -1,4 +1,4 @@
-use Modern::Perl 2023;
+use v5.40;
 
 our $directory;
 BEGIN { use Cwd; $directory = cwd; }
@@ -6,12 +6,10 @@ use lib $directory;
 
 package AOC::Util;
 use Exporter;
-use feature 'signatures';
-use List::Util qw(min max);
 
 our @ISA = qw( Exporter );
 #our @EXPORT_OK = qw(a b c);
-our @EXPORT = qw(read_input read_grouped_input approx_equal reduce gcd lcm);
+our @EXPORT = qw(read_input read_grouped_input approx_equal $MAX_INT $MIN_INT);
 
 # Read Input
 
@@ -84,53 +82,7 @@ sub approx_equal($float1, $float2, $threshold=0.0001) {
 	return $difference < $threshold;
 }
 
-
-# Reduce
-
-# If a fraction can be reduced by dividing num an denom by an integer value
-# the reduced fraction is returned.
-
-# $frac is an array ref with two integers representing numerator and denominator
-# Returns an array ref with two integers representing numerator and denominator
-sub reduce($frac) {
-	my ($numerator, $denominator) = @{$frac};
-	my $gcd = gcd($numerator, $denominator);
-	if ($gcd < $numerator * $denominator) {
-		return [$numerator / $gcd, $denominator / $gcd];
-	}
-	return [$numerator, $denominator];
-}
-
-
-# Greatest Common Divisor
-
-# Takes two integers and returns the GCD
-sub gcd($x, $y) {
-    my $a = 0;
-    my $b = max($x,$y);
-	my $r = min($x,$y);
-	while ($r != 0) {
-        $a = $b;
-        $b = $r;
-    	$r = $a % $b;
-	}
-	return $b;
-}
-
-
-# Least Common Multiple
-
-# Takes an array of integers and returns the LCM
-sub lcm(@values) {
-	return 0 if scalar(@values) == 0;
-
-	my $running = shift @values;
-	while (scalar(@values) > 0) {
-		my $next = shift @values;
-		$running = $running / gcd($running, $next) * $next;
-	}
-	return $running
-}
-
+our $MAX_INT = ~0 >> 1;
+our $MIN_INT = -1 * $MAX_INT;
 
 1;

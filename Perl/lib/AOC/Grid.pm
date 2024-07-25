@@ -1,4 +1,6 @@
-use Modern::Perl 2023;
+use v5.40;
+use feature 'class';
+no warnings qw( experimental::class );
 
 our $directory;
 BEGIN { use Cwd; $directory = cwd; }
@@ -6,19 +8,11 @@ use lib $directory;
 
 package AOC::Grid;
 use Exporter;
-use feature 'signatures';
 use AOC::Geometry;
 
 our @ISA = qw( Exporter );
 #our @EXPORT_OK = qw(g2_make);
-our @EXPORT = qw(
-	g2_make g2_get_default g2_get_rule
-
-	g2_get g2_get_scalar g2_set g2_clear g2_extent
-	g2_coords g2_coords_with_value g2_histogram
-	g2_offsets g2_neighbors
-
-	g2_print g2_to_str);
+our @EXPORT = qw( g2_make );
 
 
 # -------------------------------------------------------
@@ -26,169 +20,173 @@ our @EXPORT = qw(
 #
 # Data model: array reference [data hashref, default, rule, extent]
 # -------------------------------------------------------
+class Grid2D {
+	field %data = ();
+	field $default :param = '.';
+	field $rule :param = ::ROOK(); # from AOC::Geometry
+	field $extent;
 
-our @RULES = ('rook', 'bishop', 'queen');
-
-sub g2_make($default, $adj_rule) {
-	if ( !grep( /^$adj_rule$/, @RULES ) ) {
-		die "$adj_rule is not a valid adjacency rule: @RULES";
+	ADJUST {
+		if ( !grep( /^$rule$/, (::ROOK(), ::BISHOP(), ::QUEEN()) ) ) {
+			say "$rule is not a valid adjacency rule. Defaulting to ROOK().";
+			$rule = ::ROOK();
+		}
 	}
-	my $g2d = [{}, $default, $adj_rule, []];
-}
 
-sub g2_get_default($g2d) {
-	return $g2d->[1];
-}
+	method default() { return $default; }
+	method rule() { return $rule; }
+	method extent {
+		if (!::e2_is_valid($extent)) {
+			return 0;
+		}
+		return $extent->clone();
+	}
 
-sub g2_get_rule($g2d) {
-	return $g2d->[2];
-}
-
-sub g2_get($g2d, $c2d) {
-	my $key = c2_to_str($c2d);
-	my $val = exists( $g2d->[0]{$key} ) ? $g2d->[0]{$key} : $g2d->[1];
-	return $val;
-}
-
-# If the underlying data is array refs or hash refs, return a meaningful scalar
-sub g2_get_scalar($g2d, $c2d) {
-	my $key = c2_to_str($c2d);
-	my $val = g2_get($g2d, $c2d);
-	my $r = ref $val;
-	if ($r eq "") {
+	method get($coord) {
+		my $key = ::c2_is_valid($coord) ? $coord->to_str() : "$coord";
+		my $val = exists( $data{$key} ) ? $data{$key} : $default;
 		return $val;
 	}
-	if ($r eq "ARRAY") {
-		# Return item in [0]
-		return $val->[0];
-	}
-	elsif ($r eq "HASH") {
-		# Return item in {"glyph"}
-		return $val->{"glyph"};
-	}
-	return "?";
-}
 
-sub g2_set($g2d, $c2d, $val) {
-	my $key = c2_to_str($c2d);
-	$g2d->[0]{$key} = $val;
-	my $expanded = e2_expanded_to_fit( g2_extent($g2d), $c2d );
-	g2_set_extent($g2d, $expanded);
-}
-
-sub g2_clear($g2d, $c2d, $reset_extent = 0) {
-	my $key = c2_to_str($c2d);
-	delete $g2d->[0]{$key};
-	g2_reset_extent($g2d) if $reset_extent;
-}
-
-sub g2_extent($g2d) {
-	my $current = $g2d->[3];
-	if (e2_is_empty($current)) {
-		return [];
-	}
-	return e2_make(e2_min($current), e2_max($current));
-}
-
-# Symbol not exported, private
-sub g2_set_extent($g2d, $e2d) {
-	$g2d->[3] = $e2d;
-}
-
-# Symbol not exported, private
-sub g2_reset_extent($g2d) {
-	g2_set_extent($g2d, e2_build( g2_coords($g2d) ));
-}
-
-sub g2_coords($g2d) {
-	my @coords = ();
-	for my $key (keys(%{$g2d->[0]})) {
-		push( @coords, c2_from_str($key) );
-	}
-	return @coords;
-}
-
-sub g2_coords_with_value($g2d, $val) {
-	my @coords = ();
-	for my $key (keys(%{$g2d->[0]})) {
-		if ($g2d->[0]{$key} eq $val) {
-			push( @coords, c2_from_str($key) );
+	# If the underlying data is array refs or hash refs, return a meaningful scalar
+	method get_scalar($coord) {
+		my $val = $self->get($coord);
+		my $r = ref $val;
+		if ($r eq "") {
+			return $val;
 		}
+		if ($r eq "ARRAY") {
+			# Return item in [0]
+			return $val->[0];
+		}
+		elsif ($r eq "HASH") {
+			# Return item in {"glyph"}
+			return $val->{"glyph"};
+		}
+		return "?";
 	}
-	return @coords;
-}
 
-sub g2_histogram($g2d) {
-	my $hist = {};
-	for my $c ( e2_all_coords( g2_extent($g2d) ) ) {
-		my $val = g2_get_scalar($g2d, $c);
-		$hist->{$val} ++;
+	method set($coord, $value) {
+		if (!::c2_is_valid($coord)) { say "Invalid coord passed to Grid2D::set"; return; }
+		my $key = $coord->to_str();
+		$data{$key} = $value;
+
+		# Update the extent to include the $coord
+		my $new_extent = $extent;
+		if (::e2_is_valid($extent)) {
+			if (!$extent->contains($coord)) {
+				$new_extent = $extent->expanded($coord);
+			}
+		}
+		else {
+			$new_extent = ::e2_make($coord, $coord)
+		}
+		$self->set_extent($new_extent);
 	}
-	return $hist;
-}
 
-sub g2_offsets($g2d) {
-	my @offsets = ();
-
-	my $rule = $g2d->[2];
-	if ($rule eq 'rook' || $rule eq 'queen') {
-		push( @offsets, (c2_offset('N'), c2_offset('E'), c2_offset('S'), c2_offset('W')) );
+	method clear($coord, $reset_extent = 0) {
+		my $key = ::c2_is_valid($coord) ? $coord->to_str() : "$coord";
+		delete $data{$key};
+		$self->reset_extent() if $reset_extent;
 	}
-	if ($rule eq 'bishop' || $rule eq 'queen') {
-		push( @offsets, (c2_offset('NW'), c2_offset('NE'), c2_offset('SE'), c2_offset('SW')) );
+
+	method set_extent($ext) {
+		if (!::e2_is_valid($ext)) { $ext = 0; }
+		$extent = $ext;
 	}
-	return @offsets;
-}
 
-sub g2_neighbors($g2d, $c2d) {
-	my @offsets = g2_offsets($g2d);
-	my @neighbors = ();
-
-	for my $o (@offsets) {
-		push( @neighbors, c2_add( $c2d, $o ));
+	method reset_extent() {
+		$self->set_extent( ::e2_make($self->coords()) );
 	}
-	return @neighbors;
-}
 
-sub g2_print($g2d, $markers=0, $invert_y=0) {
-	print g2_to_str($g2d, $markers, $invert_y);
-}
+	method coords($with_val = undef) {
+		my @coords = ();
+		for my $key (keys %data) {
+			if (!defined($with_val) || $data{$key} eq $with_val) {
+				push( @coords, ::c2_from_str($key) );
+			}
+		}
+		return @coords;
+	}
 
-sub g2_to_str($g2d, $markers=0, $invert_y=0) {
-	my $str = '';
-	my $e2d = g2_extent($g2d);
-	my $ymin = $e2d->[1];
-	my $ymax = $e2d->[3];
-	if ($invert_y) {
-		for (my $y = $ymax; $y >= $ymin; $y--) {
+	method histogram($include_unset = 0) {
+		my $hist = {};
+		my @coords_to_summarize = ();
+		if ($include_unset) {
+			if (::e2_is_valid($extent)) {
+				@coords_to_summarize = $extent->all_coords();
+			}
+		}
+		else {
+			@coords_to_summarize = $self->coords();
+		}
+		for my $c ( @coords_to_summarize ) {
+			my $val = $self->get_scalar($c);
+			$hist->{$val} ++;
+		}
+		return $hist;
+	}
+
+	method neighbors($coord) {
+		if (!::c2_is_valid($coord)) { return (); }
+		return $coord->get_adjacent_coords($rule);
+	}
+
+	method print($markers=0, $invert_y=0) {
+		print($self->to_str($markers, $invert_y));
+	}
+
+	method to_str($markers=0, $invert_y=0) {
+		my $str = "";
+		if (!::e2_is_valid($extent)) { return $str; }
+
+		my $xmin = $extent->nw->X();
+		my $xmax = $extent->se->X();
+		my $ymin = $extent->nw->Y();
+		my $ymax = $extent->se->Y();
+
+		my @indexes = ();
+		for my $r ( $ymin..$ymax ) { push(@indexes, $r); }
+		if ($invert_y) { @indexes = reverse(@indexes); }
+
+		for my $y (@indexes) {
 			my @row = ();
-			for (my $x = $e2d->[0]; $x <= $e2d->[2]; $x++) {
-				my $c = c2_make($x, $y);
-				my $glyph = g2_get_scalar($g2d, $c);
-				if ($markers && defined $markers->{c2_to_str($c)}) {
-					$glyph = $markers->{c2_to_str($c)};
+			for my $x ($xmin..$xmax) {
+				my $c = ::c2_make($x, $y);
+				my $glyph = $self->get_scalar($c);
+				if ($markers && defined $markers->{$c->to_str()}) {
+					$glyph = $markers->{$c->to_str()};
 				}
 				push( @row, $glyph );
 			}
 			push (@row, "\n");
 			$str .= join(' ', @row);
 		}
+		return $str;
 	}
-	else {
-		for (my $y = $ymin; $y <= $ymax; $y++) {
-			my @row = ();
-			for (my $x = $e2d->[0]; $x <= $e2d->[2]; $x++) {
-				my $c = c2_make($x, $y);
-				my $glyph = g2_get_scalar($g2d, $c);
-				if ($markers && defined $markers->{c2_to_str($c)}) {
-					$glyph = $markers->{c2_to_str($c)};
+
+	method load(@rows) {
+		for my $r (0..$#rows) {
+			my $max_col = length($rows[0])-1;
+			for my $c (0..$max_col) {
+				my $char = substr($rows[$r], $c, 1);
+				if ($char ne $default) {
+					$self->set(::c2_make($c, $r), $char);
 				}
-				push( @row, $glyph );
 			}
-			push (@row, "\n");
-			$str .= join(' ', @row);
 		}
 	}
-	return $str;
 }
 
+
+# -------------------------------------------------------
+# Functions
+#   have to be below all class definitions
+# -------------------------------------------------------
+
+
+sub g2_make($default = '.', $adj_rule = ::ROOK()) {
+	return Grid2D->new(rule => $adj_rule, default => $default);
+}
+
+1;

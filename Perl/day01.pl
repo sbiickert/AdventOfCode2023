@@ -1,11 +1,12 @@
 #!/usr/bin/env perl
-use Modern::Perl 2023;
+use v5.40;
+
 our $directory;
 BEGIN { use Cwd; $directory = cwd; }
 use lib $directory . '/lib';
 
 use feature 'signatures';
-#use Data::Dumper;
+#use Data::Printer;
 #use Storable 'dclone';
 
 use AOC::Util;

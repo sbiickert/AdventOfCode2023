@@ -1,11 +1,14 @@
 #!/usr/bin/env perl
-use Modern::Perl 2023;
+use v5.40;
+# use feature 'class';
+# no warnings qw( experimental::class );
+
 our $directory;
 BEGIN { use Cwd; $directory = cwd; }
 use lib $directory . '/lib';
 
 use feature 'signatures';
-#use Data::Dumper;
+#use Data::Printer;
 #use Storable 'dclone';
 
 use AOC::Util;
@@ -25,8 +28,10 @@ exit( 0 );
 
 sub solve_part_one(@input) {
 
+	say "Part One: ";
 }
 
 sub solve_part_two(@input) {
 
+	say "Part One: ";
 }
