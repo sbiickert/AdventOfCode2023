@@ -22,8 +22,8 @@ our @EXPORT = qw( g2_make );
 # -------------------------------------------------------
 class Grid2D {
 	field %data = ();
-	field $default :param = '.';
-	field $rule :param = ::ROOK(); # from AOC::Geometry
+	field $default :reader :param = '.';
+	field $rule :reader :param = ::ROOK(); # from AOC::Geometry
 	field $extent;
 
 	ADJUST {
@@ -33,8 +33,8 @@ class Grid2D {
 		}
 	}
 
-	method default() { return $default; }
-	method rule() { return $rule; }
+# 	method default() { return $default; }
+# 	method rule() { return $rule; }
 	method extent {
 		if (!::e2_is_valid($extent)) {
 			return 0;

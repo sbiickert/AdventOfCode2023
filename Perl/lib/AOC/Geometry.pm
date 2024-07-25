@@ -48,11 +48,11 @@ my %ADJACENCY_RULES = ('ROOK'    => ['N','E','S','W'],
 # Two-dimensional coordinate class
 # -------------------------------------------------------
 class Coord2D {
-	field $col :param;
-	field $row :param;
+	field $col :param :reader;
+	field $row :param :reader;
 
-	method col() { return $col; }
-	method row() { return $row; }
+# 	method col() { return $col; }
+# 	method row() { return $row; }
 	method X() { return $col; }
 	method Y() { return $row; }
 
@@ -141,15 +141,15 @@ class Coord2D {
 # -------------------------------------------------------
 class Position {
 	use List::Util qw(first);
-	field $coord :param;
-	field $dir :param = 'N';
+	field $coord :param :reader;
+	field $dir :reader :param = 'N';
 
 	ADJUST {
 		$dir = ::d2_from_alias($dir);
 	}
 
-	method coord() { return $coord; }
-	method dir() { return $dir; }
+# 	method coord() { return $coord; }
+# 	method dir() { return $dir; }
 
 	method equals($other_pos) {
 		return $coord->equals($other_pos->coord()) &&
