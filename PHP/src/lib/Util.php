@@ -61,3 +61,35 @@ function approxEqual(float $f1, float $f2, float $tolerance=0.0001): bool {
 function trueMod(int $num, int $mod): int {
 	return ($mod + ($num % $mod)) % $mod;
 }
+
+function reduce(int $numerator, int $denominator): array {
+	$gcd = gcd($numerator, $denominator);
+	if ($gcd < $numerator * $denominator) {
+		return [$numerator / $gcd, $denominator / $gcd];
+	}
+	return [$numerator, $denominator];
+}
+
+function gcd(int $x, int $y): int {
+	$a = 0;
+	$b = max($x, $y);
+	$r = min($x, $y);
+	while ($r != 0) {
+		$a = $b;
+		$b = $r;
+		$r= $a % $b;
+	}
+	return $b;
+}
+
+function lcm(array $values): int {
+	if (count($values) == 0) { return 0; }
+	
+	$running = array_shift($values);
+	while (count($values) > 0) {
+		$next = array_shift($values);
+		$running = $running / gcd($running, $next) * $next;
+	}
+	
+	return $running;
+}
