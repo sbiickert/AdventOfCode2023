@@ -40,6 +40,25 @@ class Grid2D {
 		$this->rule = $rule;
 		$this->ext = null;
 	}
+
+	public function __clone() {
+		$cloned = new Grid2D($this->rule, $this->default);
+		$cloned->data = $this->data;
+		$cloned->ext = clone $this->ext;
+		return $cloned;
+	}
+	
+	public function load(array $rows) {
+		for ($r = 0; $r < count($rows); $r++) {
+			$width = strlen($rows[$r]);
+			for ($c = 0; $c < $width; $c++) {
+				$ch = substr($rows[$r], $c, 1);
+				if ($ch != $this->default) {
+					$this->setValue(new Coord2D($c, $r), $ch);
+				}
+			}
+		}
+	}
 	
 	public function getDefault() {
 		return $this->default;
@@ -94,7 +113,7 @@ class Grid2D {
 	
 	public function getExtent(): ?Extent2D {
 		if (is_null($this->ext)) { return null; }
-		return $this->ext->clone();
+		return clone $this->ext;
 	}
 	
 	public function getCoords(): array {
@@ -165,12 +184,5 @@ class Grid2D {
 			$str .= join(' ', $row);
 		}
 		return $str;
-	}
-
-	public function clone(): Grid2D {
-		$cloned = new Grid2D($this->rule, $this->default);
-		$cloned->data = $this->data;
-		$cloned->ext = $thi->ext->clone();
-		return $cloned;
 	}
 }

@@ -89,7 +89,16 @@ final class GridTest extends TestCase
     	$grid->clear($c100, true);
     	$this->assertTrue($grid->getExtent()->equalTo($ext));
     }
-
+    
+    public function testGridLoad(): void {
+		$grid = new Grid2D(rule: 'ROOK', default: '.');
+		$data = ['abcde', 'f.ghi', ' klmn'];
+		$grid->load($data);
+		//$grid->print();
+		$ext = $grid->getExtent();
+		$this->assertTrue($ext->equalTo(Extent2D::fromInts(0,0,4,2)));
+		$this->assertTrue($grid->getValue(new Coord2D(3,0)) == 'd');
+	}
     
     protected function tearDown(): void {}
 }

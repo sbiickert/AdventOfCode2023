@@ -57,6 +57,10 @@ class Coord2D {
 		$this->y = $y;
 	}
 	
+	public function __clone() {
+		return new Coord2D($this->x, $this->y);
+	}
+	
 	public function getX(): int { return $this->x; }
 // 	public function setX(int $value): int {
 // 		$this->x = $value;
@@ -96,10 +100,6 @@ class Coord2D {
 		return sqrt($delta->x * $delta->x + $delta->y * $delta->y);
 	}
 	
-	public function clone(): Coord2D {
-		return new Coord2D($this->x, $this->y);
-	}
-	
 	public function toString(): string {
 		return "[$this->x,$this->y]";
 	}
@@ -120,6 +120,10 @@ class Position2D {
 		$this->direction = Coord2D::resolveOffsetAlias($direction);
 	}
 	
+	public function __clone() {
+		return new Position2D(clone $this->location, $this->direction);
+	}
+	
 	public function getLocation(): Coord2D {
 		return $this->location;
 	}
@@ -138,10 +142,10 @@ class Position2D {
 		elseif (in_array($rotation, static::$TURN_LEFT)) { $step = -1; }
 		if ($step != 0) {
 			$index = array_search($this->direction, static::$ORDERED_DIRS);
-			if ($index === false) { return $this->clone(); }
+			if ($index === false) { return clone $this; }
 			$index = trueMod(($index + $step), 4); // PHP mod returns negative numbers
 		}
-		return new Position2D($this->location->clone(), static::$ORDERED_DIRS[$index]);
+		return new Position2D(clone $this->location, static::$ORDERED_DIRS[$index]);
 	}
 	
 	public function movedForward(int $distance=1): Position2D {
@@ -158,10 +162,6 @@ class Position2D {
 				$this->direction == $other->direction);
 	}
 	
-	public function clone(): Position2D {
-		return new Position2D($this->location->clone(), $this->direction);
-	}
-	
 	public function toString(): string {
 		return '{' . $this->location->toString() . ' ' . $this->direction . '}';
 	}
@@ -174,6 +174,10 @@ class Extent1D {
 	function __construct(int $min, int $max) {
 		$this->min = min($min, $max);
 		$this->max = max($min, $max);
+	}
+
+	function __clone() {
+		return new Extent1D($this->min, $this->max);
 	}
 	
 	function getMin(): int { return $this->min; }
@@ -215,10 +219,6 @@ class Extent1D {
 	function containsValue(int $v): bool {
 		return $this->min <= $v && $this->max >= $v;
 	}
-
-	function clone(): Extent1D {
-		return new Extent1D($this->min, $this->max);
-	}
 		
 	function toString(): string {
 		return '{min: ' . $this->min . ', max: ' . $this->max . ']}';
@@ -251,6 +251,10 @@ class Extent2D {
 		$this->min = new Coord2D($xmin, $ymin);
 		$this->max = new Coord2D($xmax, $ymax);
 	}
+
+	function __clone() {
+		return new Extent2D(clone $this->min, clone $this->max);
+	}
 	
 	function expandedToFit(Coord2D $c): Extent2D {
 		$min = new Coord2D(min( $this->xMin(), $c->getX() ),
@@ -262,11 +266,11 @@ class Extent2D {
 	
 	function xMin(): int { return $this->min->getX(); }
 	function yMin(): int { return $this->min->getY(); }
-	function xMax(): int { return $this->max->getY(); }
+	function xMax(): int { return $this->max->getX(); }
 	function yMax(): int { return $this->max->getY(); }
 	
-	function getMin(): Coord2D {	return $this->min->clone();	}
-	function getMax(): Coord2D {	return $this->max->clone();	}
+	function getMin(): Coord2D {	return clone $this->min;	}
+	function getMax(): Coord2D {	return clone $this->max;	}
 	function getNW(): Coord2D  {	return $this->getMin();	}
 	function getSE(): Coord2D  {	return $this->getMax();	}
 	function getNE(): Coord2D  {	return new Coord2D($this->xMax(), $this->yMin());	}
@@ -317,14 +321,14 @@ class Extent2D {
 		if ($debug) {echo "Union of " . $this->toString() . " and " . $other->toString() . "\n";}
 		
 		if ($this->equalTo($other)) {
-			array_push($results, $this->clone());
+			array_push($results, clone $this);
 			return $results;
 		}
 		
 		$int = $this->intersect($other);
 		if (is_null($int)) {
-			array_push($results, $this->clone());
-			array_push($results, $other->clone());
+			array_push($results, clone $this);
+			array_push($results, clone $other);
 			return $results;
 		}
 		
@@ -398,10 +402,6 @@ class Extent2D {
 	
 	function equalTo(Extent2D $other): bool {
 		return ($this->min->equalTo($other->min) && $this->max->equalTo($other->max));
-	}
-
-	function clone(): Extent2D {
-		return new Extent2D($this->min->clone(), $this->max->clone());
 	}
 		
 	function toString(): string {

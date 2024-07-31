@@ -13,7 +13,7 @@ final class GeometryTest extends TestCase
 	}
 	
 	public function testCoord2DConstruction(): void {
-		$coord = new Coord2D(2,3);
+		$coord = new Coord2D(x:2, y:3);
 		$this->assertEquals($coord->getX(), 2);
 		$this->assertEquals($coord->getY(), 3);
 		
@@ -23,7 +23,7 @@ final class GeometryTest extends TestCase
 		$rehydrated = Coord2D::fromString($str);
 		$this->assertTrue($coord->equalTo($rehydrated));
 		
-		$cloned = $coord->clone();
+		$cloned = clone $coord;
 		$this->assertTrue($coord->equalTo($cloned));
 	}
 	
@@ -111,7 +111,7 @@ final class GeometryTest extends TestCase
     	$this->assertEquals($ext->getMin(), 1);
     	$this->assertEquals($ext->getMax(), 9);
     	
-    	$cloned = $ext->clone();
+    	$cloned = clone $ext;
     	$this->assertEquals($cloned->getMin(), 1);
     	$this->assertEquals($cloned->getMax(), 9);
     	
@@ -181,7 +181,7 @@ final class GeometryTest extends TestCase
     	$this->assertTrue($ext->getMax()->getX() ==  4);
     	$this->assertTrue($ext->getMax()->getY() ==  4);
     	
-    	$cloned = $ext->clone();
+    	$cloned = clone $ext;
     	$this->assertTrue($cloned->getMin()->getX() == -1);
     	$this->assertTrue($cloned->getMin()->getY() ==  1);
     	$this->assertTrue($cloned->getMax()->getX() ==  4);
