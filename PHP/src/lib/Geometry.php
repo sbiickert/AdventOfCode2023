@@ -100,7 +100,7 @@ class Coord2D {
 		return sqrt($delta->x * $delta->x + $delta->y * $delta->y);
 	}
 	
-	public function toString(): string {
+	public function __toString(): string {
 		return "[$this->x,$this->y]";
 	}
 }
@@ -162,8 +162,8 @@ class Position2D {
 				$this->direction == $other->direction);
 	}
 	
-	public function toString(): string {
-		return '{' . $this->location->toString() . ' ' . $this->direction . '}';
+	public function __toString(): string {
+		return '{' . strval($this->location) . ' ' . $this->direction . '}';
 	}
 }
 
@@ -220,7 +220,7 @@ class Extent1D {
 		return $this->min <= $v && $this->max >= $v;
 	}
 		
-	function toString(): string {
+	function __toString(): string {
 		return '{min: ' . $this->min . ', max: ' . $this->max . ']}';
 	}
 }
@@ -290,8 +290,8 @@ class Extent2D {
 	
 	function getAllCoords(): array {
 		$coords = array();
-		foreach (range($this->xMin(), $this->xMax()) as $x) {
-			foreach (range($this->yMin(), $this->yMax()) as $y) {
+		foreach (range($this->yMin(), $this->yMax()) as $y) {
+			foreach (range($this->xMin(), $this->xMax()) as $x) {
 				array_push( $coords, new Coord2D($x, $y) );
 			}
 		}
@@ -318,7 +318,7 @@ class Extent2D {
 	function union(Extent2D $other): array {
 		$results = array();
 		$debug = false;
-		if ($debug) {echo "Union of " . $this->toString() . " and " . $other->toString() . "\n";}
+		if ($debug) {echo "Union of " . strval($this) . " and " . strval($other) . "\n";}
 		
 		if ($this->equalTo($other)) {
 			array_push($results, clone $this);
@@ -332,55 +332,55 @@ class Extent2D {
 			return $results;
 		}
 		
-		if ($debug) {echo "Intersection: " . $int->toString() . "\n";}
+		if ($debug) {echo "Intersection: " . strval($int) . "\n";}
 		array_push($results, $int);
 		foreach (array($this, $other) as $ext) {
 			if ($ext->min->getX() < $int->min->getX()) {
 				if ($ext->min->getY() < $int->min->getY()) {
 					$result = new Extent2D($ext->getNW(), $int->getNW()->offset('NW'));
-					if ($debug) {echo "NW: " . $result->toString() . "\n";}
+					if ($debug) {echo "NW: " . strval($result) . "\n";}
 					array_push($results, $result);
 				}
 				if ($ext->max->getY() > $int->max->getY()) {
 					$result = new Extent2D($int->getSW()->offset('SW'), $ext->getSW());
-					if ($debug) {echo "SW: " .$result->toString() . "\n";}
+					if ($debug) {echo "SW: " .strval($result) . "\n";}
 					array_push($results, $result);
 				}
 				#West
 				$result =  new Extent2D(new Coord2D($ext->min->getX(), $int->min->getY()),
 										new Coord2D($int->min->getX()-1, $int->max->getY()));
-				if ($debug) {echo " W: " .$result->toString() . "\n";}
+				if ($debug) {echo " W: " .strval($result) . "\n";}
 				array_push($results, $result);
 			}
 			if ($int->max->getX() < $ext->max->getX()) {
 				if ($ext->min->getY() < $int->min->getY()) {
 					$result = new Extent2D($ext->getNE(), $int->getNE()->offset('NE'));
-					if ($debug) {echo "NE: " . $result->toString() . "\n";}
+					if ($debug) {echo "NE: " . strval($result) . "\n";}
 					array_push($results, $result);
 				}
 				if ($ext->max->getY() > $int->max->getY()) {
 					$result = new Extent2D($int->getSE()->offset('SE'), $ext->getSE());
-					if ($debug) {echo "SE: " . $result->toString() . "\n";}
+					if ($debug) {echo "SE: " . strval($result) . "\n";}
 					array_push($results, $result);
 				}
 				#East
 				$result = new Extent2D(new Coord2D($int->max->getX()+1, $int->min->getY()),
 										new Coord2D($ext->max->getX(), $int->max->getY()));
-				if ($debug) {echo " E: " .$result->toString() . "\n";}
+				if ($debug) {echo " E: " .strval($result) . "\n";}
 				array_push($results, $result);
 			}
 			if ($ext->min->getY() < $int->min->getY()) {
 				#North
 				$result = new Extent2D(new Coord2D($int->min->getX(), $int->min->getY()-1),
 										new Coord2D($int->max->getX(), $ext->min->getY()));
-				if ($debug) {echo " N: " . $result->toString() . "\n";}
+				if ($debug) {echo " N: " . strval($result) . "\n";}
 				array_push($results, $result);
 			}
 			if ($int->max->getY() < $ext->max->getY()) {
 				#South
 				$result = new Extent2D(new Coord2D($int->min->getX(), $int->max->getY()+1),
 										new Coord2D($int->max->getX(), $ext->max->getY()));
-				if ($debug) {echo " S: " . $result->toString() . "\n";}
+				if ($debug) {echo " S: " . strval($result) . "\n";}
 				array_push($results, $result);
 			}
 		}
@@ -404,8 +404,8 @@ class Extent2D {
 		return ($this->min->equalTo($other->min) && $this->max->equalTo($other->max));
 	}
 		
-	function toString(): string {
-		return '{min: ' . $this->min->toString() .
-			 ', max: ' . $this->max->toString() . '}';
+	function __toString(): string {
+		return '{min: ' . strval($this->min) .
+			 ', max: ' . strval($this->max) . '}';
 	}
 }

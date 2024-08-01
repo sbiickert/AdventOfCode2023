@@ -71,11 +71,11 @@ final class GridTest extends TestCase
     	$this->assertEquals(count($n), 4);
     	$this->assertTrue($n[0]->equalTo(new Coord2D(2,1)));
     	
-    	$gridString = $grid->toString();
+    	$gridString = strval($grid);
     	$this->assertEquals($gridString, "A . . . \n. B . . \n. . B . \nE G S D \n");
     	$gridString = $grid->toString(null, true); # invert y
     	$this->assertEquals($gridString, "E G S D \n. . B . \n. B . . \nA . . . \n");
-		$markers = array((new Coord2D(4,1))->toString() => '*');
+		$markers = array(strval(new Coord2D(4,1)) => '*');
     	$gridString = $grid->toString($markers);
     	$this->assertEquals($gridString, "A . . * \n. B . . \n. . B . \nE G S D \n");
     	

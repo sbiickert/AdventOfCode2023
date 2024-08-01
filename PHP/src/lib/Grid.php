@@ -69,7 +69,7 @@ class Grid2D {
 	}
 	
 	public function getValue(Coord2D $c) {
-		$key = $c->toString();
+		$key = strval($c);
 		if (array_key_exists($key, $this->data)) {
 			return $this->data[$key];
 		}
@@ -93,7 +93,7 @@ class Grid2D {
 	}
 	
 	public function setValue(Coord2D $atCoord, $value): void {
-		$key = $atCoord->toString();
+		$key = strval($atCoord);
 		$this->data[$key] = $value;
 		if (is_null($this->ext)) {
 			$this->ext = new Extent2D($atCoord, $atCoord);
@@ -104,7 +104,7 @@ class Grid2D {
 	}
 	
 	public function clear(Coord2D $atCoord, bool $resetExtent=false): void {
-		$key = $atCoord->toString();
+		$key = strval($atCoord);
 		unset($this->data[$key]);
 		if ($resetExtent) {
 			$this->ext = Extent2D::build($this->getCoords());
@@ -175,8 +175,8 @@ class Grid2D {
 			foreach (range($ext->xMin(), $ext->xMax()) as $x) {
 				$c = new Coord2D($x, $y);
 				$glyph = $this->getStringValue($c);
-				if (!is_null($markers) && array_key_exists($c->toString(), $markers)) {
-					$glyph = $markers[$c->toString()];
+				if (!is_null($markers) && array_key_exists(strval($c), $markers)) {
+					$glyph = $markers[strval($c)];
 				}
 				$row[] = $glyph;
 			}
@@ -184,5 +184,9 @@ class Grid2D {
 			$str .= join(' ', $row);
 		}
 		return $str;
+	}
+	
+	public function __toString() {
+		return $this->toString();
 	}
 }

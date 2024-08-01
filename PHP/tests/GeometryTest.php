@@ -17,7 +17,7 @@ final class GeometryTest extends TestCase
 		$this->assertEquals($coord->getX(), 2);
 		$this->assertEquals($coord->getY(), 3);
 		
-		$str = $coord->toString();
+		$str = strval($coord);
 		$this->assertEquals($str, '[2,3]');
 		
 		$rehydrated = Coord2D::fromString($str);
