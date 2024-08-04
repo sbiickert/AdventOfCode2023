@@ -19,12 +19,13 @@ $schematic = new Grid2D('QUEEN', '.');
 $schematic->load($input);
 // $schematic->print();
 
+$partsNextToGears = []; // Side effect of part 1, ready for part 2
 
 $result1 = solvePartOne($schematic);
-echo "Part One: $result1\n";
+echo "Part One: The sum of the part numbers is $result1\n";
 
-//$result2 = solvePartTwo($input);
-//echo "Part Two: $result2\n";
+$result2 = solvePartTwo($partsNextToGears);
+echo "Part Two: The sum of gear ratios is $result2\n";
 
 
 function solvePartOne(Grid2D $schematic):int {
@@ -43,8 +44,15 @@ function solvePartOne(Grid2D $schematic):int {
 			$searchExt = new Extent2D($start, $coord->offset('<')); // Rewind to previous coord
 			$symLocation = findAdjacentSymbol($searchExt, $schematic);
 			if ($symLocation) {
-				//$sym = $schematic->getValue($symLocation);
 				array_push($numbers, intval($num));
+				
+				// Storing info for part 2
+				global $partsNextToGears;
+				if ($schematic->getValue($symLocation) == '*') {
+					$key = strval($symLocation);
+					if (!array_key_exists($key, $partsNextToGears)) { $partsNextToGears[$key] = []; }
+					array_push($partsNextToGears[$key], intval($num));
+				}
 			}
 			$num = '';
 			$start = null;
@@ -56,7 +64,14 @@ function solvePartOne(Grid2D $schematic):int {
 }
 
 function solvePartTwo(array $input):int  {
-	return 0;
+	$sum = 0;
+	foreach ($input as $coord => $numbers) {
+		if (count($numbers) == 2) {
+			$ratio = $numbers[0] * $numbers[1];
+			$sum += $ratio;
+		}
+	}
+	return $sum;
 }
 
 function findAdjacentSymbol(Extent2D $extent, Grid2D $schematic): ?Coord2D {
