@@ -15,32 +15,30 @@ $INPUT_INDEX = 0;
 
 $input = read_grouped_input($INPUT_DIR . $INPUT_FILE, $INPUT_INDEX);
 
-$result1 = solvePartOne($input);
+$cards = array_map(fn($line) => new ScratchCard($line), $input);
+
+$result1 = solvePartOne($cards);
 echo "Part One: The total number of points is $result1\n";
 
-$result2 = solvePartTwo($input);
+$result2 = solvePartTwo($cards);
 echo "Part Two: The number of scratchcards is $result2\n";
 
 
 
-function solvePartOne(array $input):int {
-	$card = new ScratchCard($input[0]);
-	$cards = array_map(fn($line) => new ScratchCard($line), $input);
+function solvePartOne(array $cards):int {
 	$sum = array_reduce($cards, fn($sum, $card) => $card->getPoints() + $sum, 0);
-	
 	return $sum;
 }
 
-function solvePartTwo(array $input):int  {
-	$card = new ScratchCard($input[0]);
-	$cards = array_map(fn($line) => new ScratchCard($line), $input);
+function solvePartTwo(array $cards):int  {
 	$max = count($cards);
 	$counts = array_fill(1, $max, 1);
 	
 	foreach ($cards as $card) {
 		$n = $card->getNumberOfMatches();
-		$multiplier = $counts[$card->getID()];
-		for ($i = $card->getID()+1; $i < $card->getID()+$n+1 && $i <= $max; $i++) {
+		$id = $card->getID();
+		$multiplier = $counts[$id];
+		for ($i = $id+1; $i < $id+$n+1 && $i <= $max; $i++) {
 			$counts[$i] += $multiplier;
 		}
 	}
@@ -65,8 +63,10 @@ class ScratchCard {
 	public function getID(): int { return $this->id; }
 	
 	public function getNumberOfMatches(): int {
-		$matchingNumbers = array_filter($this->myNumbers, fn($num) => in_array($num, $this->winningNumbers));
-		return count($matchingNumbers);
+		return count(
+			array_filter($this->myNumbers,
+				fn($num) => in_array($num, $this->winningNumbers))
+		);
 	}
 	
 	public function getPoints():int {
