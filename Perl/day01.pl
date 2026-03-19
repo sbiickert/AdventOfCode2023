@@ -13,9 +13,9 @@ use AOC::Util;
 #use AOC::Geometry;
 #use AOC::Grid;
 
-# my $INPUT_FILE = 'day01_test.txt';
-my $INPUT_FILE = 'day01_challenge.txt';
-my $INDEX = 0;
+my $DAY = sprintf("%02d", 1);
+my $INPUT = $ARGV[0];
+my $INPUT_FILE = 'day' . $DAY . '_' . $INPUT . '.txt';
 
 my @input;
 

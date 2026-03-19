@@ -15,8 +15,10 @@ use AOC::Util;
 #use AOC::Geometry;
 #use AOC::Grid;
 
-my $INPUT_FILE = 'day<##>_test.txt';
-#my $INPUT_FILE = 'day<##>_challenge.txt';
+my $DAY = sprintf("%02d", <##>);
+my $INPUT = $ARGV[0];
+my $INPUT_FILE = 'day' . $DAY . '_' . $INPUT . '.txt';
+
 my @input = read_input("../input/$INPUT_FILE");
 
 say "Advent of Code 2023, Day <##>: <##>";
