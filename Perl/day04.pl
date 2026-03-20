@@ -53,7 +53,7 @@ class ScratchCard {
 my @cards = map {ScratchCard->from_str($_)} @input;
 
 solve_part_one(@cards);
-#solve_part_two(@input);
+solve_part_two(@cards);
 
 exit( 0 );
 
@@ -64,7 +64,17 @@ sub solve_part_one(@cards) {
 	say "Part One: the total scratchcard points is $total.";
 }
 
-sub solve_part_two(@input) {
+sub solve_part_two(@cards) {
+	my @counts = (1) x scalar(@cards);
+	my @matches = map { scalar $_->matches() } @cards;
 
-	say "Part One: ";
+	for (my $i = 0; $i <= $#matches; $i++) {
+		for my $j (1..$matches[$i]) {
+			last if $i + $j > $#counts;
+			$counts[$i + $j] += $counts[$i];
+		}
+	}
+	my $total = sum(@counts);
+
+	say "Part Two: the total number of scratchcards is $total.";
 }

@@ -35,5 +35,5 @@ sub solve_part_one(@input) {
 
 sub solve_part_two(@input) {
 
-	say "Part One: ";
+	say "Part Two: ";
 }
