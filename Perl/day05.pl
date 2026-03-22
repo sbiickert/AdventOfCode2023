@@ -19,11 +19,16 @@ my @input = read_grouped_input("../input/$INPUT_FILE");
 
 say "Advent of Code 2023, Day 5: If You Give A Seed A Fertilizer";
 
+# https://www.youtube.com/watch?v=EGQgUYx-2gE
+
 my @seeds = parse_seeds($input[0][0]);
-my @maps = parse_maps(@input[1..$#input]);
+my @maps = map {parse_map($_)} @input[1..$#input];
 
 solve_part_one();
-#solve_part_two(@input);
+
+my @seed_intervals = parse_seed_intervals($input[0][0]);
+
+solve_part_two(@seed_intervals);
 
 exit( 0 );
 
@@ -44,19 +49,64 @@ sub solve_part_one() {
 	say "Part One: the minimum location ID is $min_location";
 }
 
-sub solve_part_two(@input) {
+sub solve_part_two(@intervals) {
+	my @locations = ();
 
-	say "Part Two: ";
+	while (scalar(@intervals) > 0) {
+		my ($x1, $x2, $map_index) = @{pop(@intervals)};
+
+		if ($map_index >= 7) {
+			push(@locations, $x1);
+			next;
+		}
+
+		my @map = @{$maps[$map_index]};
+		my $was_converted = 0;
+
+		for my $conversion (@map) {
+			my ($start, $end, $diff) = @{$conversion};
+			if ($x1 >= $end or $x2 <= $start) {
+				# No overlap of the interval with the map range
+				next;
+			}
+			if ($x1 < $start) {
+				push(@intervals, [$x1, $start, $map_index]);
+				$x1 = $start;
+			}
+			if ($x2 > $end) {
+				push(@intervals, [$end, $x2, $map_index]);
+				$x2 = $end;
+			}
+			# Perfect overlap
+			push(@intervals, [$x1+$diff, $x2+$diff, $map_index+1]);
+
+			$was_converted = 1;
+			last;
+		}
+
+		if (!$was_converted) {
+			push(@intervals, [$x1, $x2, $map_index+1]);
+		}
+	}
+
+	my $min_location = min @locations;
+	say "Part Two: the minimum location ID is $min_location";
 }
 
 sub parse_seeds($line) {
-	my @strs = $line =~ m/(\d+)/g;
-	@strs = map {$_ + 0} @strs;
-	return @strs;
+	my @seeds = $line =~ m/(\d+)/g;
+	@seeds = map {$_ + 0} @seeds;
+	return @seeds;
 }
 
-sub parse_maps(@groups) {
-	my @maps = map {parse_map($_)} @groups;
+sub parse_seed_intervals($line) {
+	my @nums = $line =~ m/(\d+)/g;
+	@nums = map {$_ + 0} @nums;
+	my @intervals = ();
+	for (my $i = 0; $i <= $#nums; $i += 2) {
+		push(@intervals, [$nums[$i], $nums[$i]+$nums[$i+1]-1, 0]);
+	}
+	return @intervals;
 }
 
 sub parse_map(@group) {
