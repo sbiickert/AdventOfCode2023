@@ -24,7 +24,9 @@ say "Advent of Code 2023, Day 6: Wait For It";
 my @races = parse_races(@input);
 
 solve_part_one();
-#solve_part_two(@input);
+
+my %single_race = combine_races(@races);
+solve_part_two(%single_race);
 
 exit( 0 );
 
@@ -39,9 +41,11 @@ sub solve_part_one() {
 	say "Part One: the product of winning move counts is $result";
 }
 
-sub solve_part_two(@input) {
+sub solve_part_two(%race) {
+	my @win_counts = ();
+	my $count = get_winning_move_count(%race);
 
-	say "Part Two: ";
+	say "Part Two: the number of ways to win the combined race is $count";
 }
 
 sub get_winning_move_count(%race) {
@@ -69,4 +73,14 @@ sub parse_races(@input) {
 		push(@races, \%race);
 	}
 	return @races;
+}
+
+sub combine_races(@races) {
+	my $time = '';
+	my $record = '';
+	for my $race (@races) {
+		$time .= $race->{'time'};
+		$record .= $race->{'record'};
+	}
+	return ('time' => $time + 0, 'record' => $record + 0);
 }

@@ -5,4 +5,4 @@
 # perl day03.pl challenge
 # perl day04.pl challenge
 # perl day05.pl challenge
-perl day06.pl test
+perl day06.pl challenge
