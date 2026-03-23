@@ -49,18 +49,17 @@ sub solve_part_two(%race) {
 }
 
 sub get_winning_move_count(%race) {
-	my $has_won = 0;
-	my $is_winning = 0;
-	my $count = 0;
+	my $first_win = -1;
 	my $hold = 1;
-	while (1) {
-		$is_winning = $hold * ($race{'time'} - $hold) > $race{'record'};
-		$count++ if $is_winning;
-		$has_won = $has_won || $is_winning;
-		$hold++;
-		last if ($has_won && !$is_winning);
-	}
-	return $count;
+	while ($hold * ($race{'time'} - $hold) <= $race{'record'}) { $hold++; }
+	$first_win = $hold;
+
+	my $last_win = -1;
+	$hold = $race{'time'};
+	while ($hold * ($race{'time'} - $hold) <= $race{'record'}) { $hold--; }
+	$last_win = $hold;
+
+	return $last_win - $first_win + 1;
 }
 
 sub parse_races(@input) {
