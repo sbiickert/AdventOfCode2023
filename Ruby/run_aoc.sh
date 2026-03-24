@@ -9,4 +9,5 @@
 # ruby -I lib day07.rb
 # ruby -I lib day08.rb
 # ruby -I lib day09.rb
-ruby -I lib day10.rb
+# ruby -I lib day10.rb
+ruby -I lib day11.rb
