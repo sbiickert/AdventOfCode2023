@@ -9,6 +9,7 @@ use lib $directory . '/lib';
 
 use feature 'signatures';
 use Data::Printer;
+use List::Util 'sum';
 
 use AOC::Util;
 
@@ -20,18 +21,29 @@ my @input = read_input("../input/$INPUT_FILE");
 
 say "Advent of Code 2023, Day 7: Camel Cards";
 
+my @hands = map { CamelCardHand->new(str => $_) } @input;
 
-
-my $cch = CamelCardHand->new("str" => "4Q6Q6");
-p $cch;
-p $cch->cards()->[0]->value();
-p $cch->type()->type();
-
-solve_part_one(@input);
+solve_part_one(@hands);
 #solve_part_two(@input);
 
 exit( 0 );
 
+
+sub solve_part_one(@hands) {
+	my @sorted = sort {return $a->compare($b)} @hands;
+	my @winnings = ();
+	for my $i (0..$#sorted) {
+		# say $sorted[$i]->debug_str();
+		$winnings[$i] = $sorted[$i]->bid() * ($i+1);
+	}
+	my $total = sum(@winnings);
+	say "Part One: the total winnings are $total.";
+}
+
+sub solve_part_two(@input) {
+
+	say "Part Two: ";
+}
 
 class CamelCard {
 	field $face :param :reader;
@@ -41,6 +53,7 @@ class CamelCard {
 		if ($face =~ m/\d+/g) {
 			$value = $face + 0;
 		}
+		elsif ($face eq 'T') { $value = 10; }
 		elsif ($face eq 'J') { $value = 11; }
 		elsif ($face eq 'Q') { $value = 12; }
 		elsif ($face eq 'K') { $value = 13; }
@@ -104,25 +117,35 @@ class CamelCardHandType {
 }
 
 class CamelCardHand {
-	field $str :param;
+	field $str :param :reader;
 	field $cards :reader;
 	field $type :reader;
+	field $bid :reader;
 
 	ADJUST {
-		say $str;
-		my @faces = split(//, $str);
+		my @parts = split(/ /, $str);
+
+		my @faces = split(//, $parts[0]);
 		my @c = map { CamelCard->new(face => $_) } @faces;
 		$cards = \@c;
+
 		$type = CamelCardHandType->determine_type( @c );
+
+		$bid = $parts[1] + 0;
 	}
-}
 
-sub solve_part_one(@input) {
+	method compare($other) {
+		if ($self->type()->value() == $other->type()->value()) {
+			# based on face value of first, second, third, fourth, fifth cards
+			for my $i (0..4) {
+				my $cmp = $self->cards->[$i]->value() <=> $other->cards->[$i]->value();
+				return $cmp if $cmp != 0;
+			}
+		}
+		return $self->type()->compare($other->type);
+	}
 
-	say "Part One: ";
-}
-
-sub solve_part_two(@input) {
-
-	say "Part Two: ";
+	method debug_str() {
+		return $str . " (" . $bid . ") " . $type->type();
+	}
 }
