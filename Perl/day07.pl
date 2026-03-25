@@ -23,45 +23,44 @@ say "Advent of Code 2023, Day 7: Camel Cards";
 
 my @hands = map { CamelCardHand->new(str => $_) } @input;
 
-solve_part_one(@hands);
-#solve_part_two(@input);
+my $p1 = solve_part(0, @hands);
+say "Part One: the total winnings are $p1.";
+my $p2 = solve_part(1, @hands);
+say "Part One: the total winnings with Jokers are $p2.";
 
 exit( 0 );
 
 
-sub solve_part_one(@hands) {
-	my @sorted = sort {return $a->compare($b)} @hands;
+sub solve_part($use_jokers, @hands) {
+	my @sorted = sort {return $a->compare($b, $use_jokers)} @hands;
 	my @winnings = ();
 	for my $i (0..$#sorted) {
-		# say $sorted[$i]->debug_str();
+		# say $sorted[$i]->debug_str($use_jokers);
 		$winnings[$i] = $sorted[$i]->bid() * ($i+1);
 	}
-	my $total = sum(@winnings);
-	say "Part One: the total winnings are $total.";
-}
-
-sub solve_part_two(@input) {
-
-	say "Part Two: ";
+	return sum(@winnings);
 }
 
 class CamelCard {
 	field $face :param :reader;
-	field $value :reader = 0;
 
 	ADJUST {
-		if ($face =~ m/\d+/g) {
-			$value = $face + 0;
-		}
-		elsif ($face eq 'T') { $value = 10; }
-		elsif ($face eq 'J') { $value = 11; }
-		elsif ($face eq 'Q') { $value = 12; }
-		elsif ($face eq 'K') { $value = 13; }
-		elsif ($face eq 'A') { $value = 14; }
 	}
 
-	method compare($other_cc) {
-		return $value <=> $other_cc->value();
+	method value($use_jokers) {
+		if ($face =~ m/\d/) {
+			return $face + 0;
+		}
+		elsif ($face eq 'T') { return 10; }
+		elsif ($face eq 'J') { return $use_jokers ? 1 : 11; }
+		elsif ($face eq 'Q') { return 12; }
+		elsif ($face eq 'K') { return 13; }
+		elsif ($face eq 'A') { return 14; }
+		die "Unknown face $face";
+	}
+
+	method compare($other_cc, $use_jokers) {
+		return $self->value($use_jokers) <=> $other_cc->value($use_jokers);
 	}
 }
 
@@ -83,12 +82,53 @@ class CamelCardHandType {
 	method compare($other_ccht) {
 		return $value <=> $other_ccht->value();
 	}
+}
 
-	sub determine_type( $cls, @cards ) {
-		my @faces = map { $_->face() } @cards;
+class CamelCardHand {
+	field $str :param :reader;
+	field $cards :reader;
+	field $bid :reader;
+
+	ADJUST {
+		my @parts = split(/ /, $str);
+
+		my @faces = split(//, $parts[0]);
+		my @c = map { CamelCard->new(face => $_) } @faces;
+		$cards = \@c;
+
+		$bid = $parts[1] + 0;
+	}
+
+	method compare($other, $use_jokers) {
+		if ($self->type($use_jokers)->value() == $other->type($use_jokers)->value()) {
+			# based on face value of first, second, third, fourth, fifth cards
+			for my $i (0..4) {
+				my $cmp = $self->cards->[$i]->value($use_jokers) <=> $other->cards->[$i]->value($use_jokers);
+				return $cmp if $cmp != 0;
+			}
+		}
+		return $self->type($use_jokers)->compare($other->type($use_jokers));
+	}
+
+
+	method type( $use_jokers ) {
+		my @faces = map { $_->face() } @{$cards};
 		my %hist = ();
 		for my $face (@faces) {
 			$hist{$face}++;
+		}
+
+		if ($use_jokers && exists($hist{'J'})) {
+			my $j = $hist{'J'};
+			delete $hist{'J'};
+			my ($max_count, $face) = (0, "J");
+			for my $key (keys %hist) {
+				if ($hist{$key} > $max_count) {
+					$max_count = $hist{$key};
+					$face = $key;
+				}
+			}
+			$hist{$face} += $j;
 		}
 
 		# How many unique cards are in the hand?
@@ -114,38 +154,9 @@ class CamelCardHandType {
 		}
 		return CamelCardHandType->new(type => 'HIGH CARD');
 	}
-}
 
-class CamelCardHand {
-	field $str :param :reader;
-	field $cards :reader;
-	field $type :reader;
-	field $bid :reader;
 
-	ADJUST {
-		my @parts = split(/ /, $str);
-
-		my @faces = split(//, $parts[0]);
-		my @c = map { CamelCard->new(face => $_) } @faces;
-		$cards = \@c;
-
-		$type = CamelCardHandType->determine_type( @c );
-
-		$bid = $parts[1] + 0;
-	}
-
-	method compare($other) {
-		if ($self->type()->value() == $other->type()->value()) {
-			# based on face value of first, second, third, fourth, fifth cards
-			for my $i (0..4) {
-				my $cmp = $self->cards->[$i]->value() <=> $other->cards->[$i]->value();
-				return $cmp if $cmp != 0;
-			}
-		}
-		return $self->type()->compare($other->type);
-	}
-
-	method debug_str() {
-		return $str . " (" . $bid . ") " . $type->type();
+	method debug_str($use_jokers) {
+		return $str . " (" . $bid . ") " . $self->type(0)->type() . " -> " . $self->type(1)->type();
 	}
 }
