@@ -26,7 +26,6 @@ $schematic->load(@input);
 # $schematic->print();
 
 my @all_symbols = get_unique_symbols(@input);
-say @all_symbols;
 
 solve_part_one();
 solve_part_two();
