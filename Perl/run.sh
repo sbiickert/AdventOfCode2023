@@ -7,4 +7,5 @@
 # perl day05.pl challenge
 # perl day06.pl challenge
 # perl day07.pl challenge
-perl day08.pl challenge
+# perl day08.pl challenge
+perl day09.pl challenge
