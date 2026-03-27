@@ -19,7 +19,7 @@ my $DAY = sprintf("%02d", 10);
 my $INPUT = $ARGV[0];
 my $INPUT_FILE = 'day' . $DAY . '_' . $INPUT . '.txt';
 
-my @input = read_grouped_input("../input/$INPUT_FILE", $INPUT eq 'challenge' ? 0 : 1);
+my @input = read_grouped_input("../Input/$INPUT_FILE", $INPUT eq 'challenge' ? 0 : 1);
 
 say "Advent of Code 2023, Day 10: Pipe Maze";
 

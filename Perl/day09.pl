@@ -15,7 +15,7 @@ my $DAY = sprintf("%02d", 9);
 my $INPUT = $ARGV[0];
 my $INPUT_FILE = 'day' . $DAY . '_' . $INPUT . '.txt';
 
-my @input = read_grouped_input("../input/$INPUT_FILE", 0);
+my @input = read_grouped_input("../Input/$INPUT_FILE", 0);
 
 say "Advent of Code 2023, Day 9: Mirage Maintenance";
 

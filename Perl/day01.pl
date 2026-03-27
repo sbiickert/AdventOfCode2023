@@ -21,7 +21,7 @@ my @input;
 
 say "Advent of Code 2023, Day 01: Trebuchet!?";
 
-@input = read_grouped_input("../input/$INPUT_FILE", 0);
+@input = read_grouped_input("../Input/$INPUT_FILE", 0);
 my $part1 = solve_part(@input);
 say "Part One: the sum of the calibration values is: $part1";
 

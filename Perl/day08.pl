@@ -21,12 +21,12 @@ say "Advent of Code 2023, Day 8: Haunted Wasteland";
 my @turns;
 my %network;
 
-parse_input( read_grouped_input("../input/$INPUT_FILE", 0) );
+parse_input( read_grouped_input("../Input/$INPUT_FILE", 0) );
 
 solve_part_one();
 
 if ($INPUT eq 'test') {
-	parse_input(read_grouped_input("../input/$INPUT_FILE", 1));
+	parse_input(read_grouped_input("../Input/$INPUT_FILE", 1));
 }
 
 solve_part_two();

@@ -17,7 +17,7 @@ my $DAY = sprintf("%02d", 3);
 my $INPUT = $ARGV[0];
 my $INPUT_FILE = 'day' . $DAY . '_' . $INPUT . '.txt';
 
-my @input = read_input("../input/$INPUT_FILE");
+my @input = read_input("../Input/$INPUT_FILE");
 
 say "Advent of Code 2023, Day 3: Gear Ratios";
 
