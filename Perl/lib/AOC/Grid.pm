@@ -1,4 +1,4 @@
-use v5.40;
+use v5.42;
 use feature 'class';
 no warnings qw( experimental::class );
 
@@ -63,7 +63,7 @@ class Grid2D {
 			# Return item in {"glyph"}
 			return $val->{"glyph"};
 		}
-		return "?";
+		return $val->glyph(); # For blessed objects
 	}
 
 	method set($coord, $value) {

@@ -1,4 +1,4 @@
-use v5.40;
+use v5.42;
 use feature 'class';
 no warnings qw( experimental::class );
 
@@ -8,15 +8,15 @@ use lib $directory;
 
 package AOC::Geometry;
 use Exporter;
-#use Data::Dumper;
-#use Storable 'dclone';
+# use Data::Printer;
+use List::Util 'first';
 
 our @ISA = qw( Exporter );
 #our @EXPORT_OK = qw(c2_make c3_make);
 our @EXPORT = qw(
 	ROOK BISHOP QUEEN
 	c2_make c2_from_str c2_origin c2_is_valid
-	d2_from_alias
+	d2_from_alias d2_for_rule d2_opposite
 	p2_make
 	e1_make e1_is_valid
 	e2_make e2_from_ints e2_is_valid
@@ -470,6 +470,20 @@ sub d2_from_alias($dir) {
 		return $OFFSET_ALIASES{$dir};
 	}
 	return "";
+}
+
+sub d2_for_rule($rule) {
+	if (exists $ADJACENCY_RULES{$rule}) {
+		return @{$ADJACENCY_RULES{$rule}};
+	}
+	return ();
+}
+
+sub d2_opposite($dir) {
+	my @dirs = @{$ADJACENCY_RULES{$QUEEN}};
+	my $idx = first {$dirs[$_] eq $dir} 0..$#dirs;
+	my $opp_idx = ($idx + 4) % 8;
+	return $dirs[$opp_idx];
 }
 
 sub p2_make($coord, $dir = 'N') {
