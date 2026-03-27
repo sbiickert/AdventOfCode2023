@@ -26,7 +26,7 @@ my $part1 = solve_part(@input);
 say "Part One: the sum of the calibration values is: $part1";
 
 if ($INPUT_FILE =~ m/test/) {
-	@input = read_grouped_input("../input/$INPUT_FILE", 1);
+	@input = read_grouped_input("../Input/$INPUT_FILE", 1);
 }
 my @fixed_input = fix_input(@input);
 my $part2 = solve_part(@fixed_input);
