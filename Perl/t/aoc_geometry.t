@@ -1,5 +1,5 @@
-use Modern::Perl 2024;
-use Test::Simple tests => 60;
+use v5.42;
+use Test::Simple tests => 65;
 use Data::Dumper;
 
 use AOC::Util;
@@ -8,6 +8,7 @@ use AOC::Geometry;
 say "Perl version : ".$];
 
 test_coord2d();
+test_dir2d();
 test_pos2d();
 test_extent1d();
 test_extent2d();
@@ -76,6 +77,23 @@ sub test_pos2d {
 	ok($bad->equals($moved), "Tested moving with a bad direction.");
 
 	# Need to test clone
+}
+
+sub test_dir2d {
+	say "\nTesting Dir2D";
+	my $dir = 'W';
+	my $right = d2_turn($dir, 45);
+	ok($right = 'NW', 'Turned right 45 degrees');
+	$right = d2_turn($dir, 360,);
+	ok($right = 'W', 'Turned right 360 degrees');
+
+	my $left = d2_turn($dir, -45);
+	ok($right = 'SW', 'Turned left 45 degrees');
+	$left = d2_turn($dir, -360,);
+	ok($left = 'W', 'Turned left 360 degrees');
+
+	my $opp = d2_opposite($dir);
+	ok($opp eq 'E', 'Turned 180 degrees');
 }
 
 sub test_extent1d {

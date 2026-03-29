@@ -16,7 +16,7 @@ our @ISA = qw( Exporter );
 our @EXPORT = qw(
 	ROOK BISHOP QUEEN
 	c2_make c2_from_str c2_origin c2_is_valid
-	d2_from_alias d2_for_rule d2_opposite
+	d2_from_alias d2_for_rule d2_turn d2_opposite
 	p2_make
 	e1_make e1_is_valid
 	e2_make e2_from_ints e2_is_valid
@@ -479,11 +479,20 @@ sub d2_for_rule($rule) {
 	return ();
 }
 
-sub d2_opposite($dir) {
+sub d2_turn($from_dir, $by_degrees) {
 	my @dirs = @{$ADJACENCY_RULES{$QUEEN}};
-	my $idx = first {$dirs[$_] eq $dir} 0..$#dirs;
-	my $opp_idx = ($idx + 4) % 8;
-	return $dirs[$opp_idx];
+	my $idx = first {$dirs[$_] eq $from_dir} 0..$#dirs;
+	my $clicks = int($by_degrees / 45);
+	my $new_idx = ($idx + $clicks) % 8;
+	return $dirs[$new_idx];
+}
+
+sub d2_opposite($dir) {
+	return d2_turn($dir, 180);
+# 	my @dirs = @{$ADJACENCY_RULES{$QUEEN}};
+# 	my $idx = first {$dirs[$_] eq $dir} 0..$#dirs;
+# 	my $opp_idx = ($idx + 4) % 8;
+# 	return $dirs[$opp_idx];
 }
 
 sub p2_make($coord, $dir = 'N') {

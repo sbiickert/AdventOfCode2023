@@ -132,6 +132,17 @@ class Grid2D {
 		return $coord->get_adjacent_coords($rule);
 	}
 
+	method flood_fill($coord, $val) {
+		no warnings 'recursion';
+		my $val_here = $self->get_scalar($coord);
+		$self->set($coord, $val);
+		for my $n ($self->neighbors($coord)) {
+			if ($extent->contains($n) and $self->get_scalar($n) eq $val_here) {
+				$self->flood_fill($n, $val);
+			}
+		}
+	}
+
 	method print($markers=0, $invert_y=0) {
 		print($self->to_str($markers, $invert_y));
 	}
