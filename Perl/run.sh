@@ -10,6 +10,7 @@
 # perl day08.pl challenge
 # perl day09.pl challenge
 # perl day10.pl challenge
-perl day11.pl challenge
+# perl day11.pl challenge
+perl day12.pl test
 
 
