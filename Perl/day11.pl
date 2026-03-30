@@ -1,7 +1,5 @@
 #!/usr/bin/env perl
 use v5.42;
-# use feature 'class';
-# no warnings qw( experimental::class );
 
 our $directory;
 BEGIN { use Cwd; $directory = cwd; }
@@ -9,8 +7,7 @@ use lib $directory . '/lib';
 
 use feature 'signatures';
 use Data::Printer;
-use Math::Combinatorics 'combine';
-use List::Util 'sum';
+use Math::Combinatorics;
 
 use AOC::Util;
 use AOC::Geometry;
@@ -39,15 +36,13 @@ sub solve_part($factor) {
 	my $galaxy = expand_galaxy($grid, $factor);
 
 	my @coords = $galaxy->coords();
-	my @all_pairs = combine( 2, (0..$#coords));
+	my $combinat = Math::Combinatorics->new(count => 2, data => [0..$#coords]);
 
-	my @distances = ();
-	for my $pair (@all_pairs) {
-		my ($i,$j) = @{$pair};
-		push(@distances, $coords[$i]->manhattan($coords[$j]));
+	my $total = 0;
+	while(my @pair = $combinat->next_combination) {
+		$total += $coords[$pair[0]]->manhattan($coords[$pair[1]]);
 	}
 
-	my $total = sum @distances;
 	return $total;
 }
 

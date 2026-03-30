@@ -115,8 +115,7 @@ class Coord2D {
 	}
 
 	method manhattan($other_coord) {
-		my $delta = $self->delta($other_coord);
-		return abs($delta->col()) + abs($delta->row());
+		return abs($other_coord->col() - $col) + abs($other_coord->row() - $row);
 	}
 
 	method clone() {
