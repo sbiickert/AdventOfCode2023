@@ -27,17 +27,18 @@ solve_part_two(@input);
 exit( 0 );
 
 sub solve_part_one(@input) {
-	my $platform = g2_make();
+	my $platform = g2a_make( length($input[0]) - 1, $#input);
 	$platform->load(@input);
 
 	roll_rocks($platform, "N");
 	my $total = measure_total_load($platform);
+# 	$platform->print();
 
 	say "Part One: the total load on the north is $total.";
 }
 
 sub solve_part_two(@input) {
-	my $platform = g2_make();
+	my $platform = g2a_make(length($input[0]) - 1, $#input);
 	$platform->load(@input);
 
 	my $load = spin_cycle($platform);
@@ -57,11 +58,14 @@ sub spin_cycle($platform) {
 		roll_rocks($platform, "W");
 		roll_rocks($platform, "S");
 		roll_rocks($platform, "E");
+# 		$platform->print();
+# 		say "";
 		my $load = measure_total_load($platform);
 		push(@loads, $load);
 		$load_indexes{$load} = [] if !defined($load_indexes{$load});
 		push(@{$load_indexes{$load}}, $i);
-		if (scalar @{$load_indexes{$load}} > 2) {
+		my $start_after = $platform->y_max() < 20 ? 4 : 2;
+		if (scalar @{$load_indexes{$load}} > $start_after) {
 			$cycle = find_cycle(\@loads);
 		}
 		say $i; # . " " . join(',', @loads);
@@ -105,11 +109,12 @@ sub find_cycle($loads_ref) {
 
 sub measure_total_load($platform) {
 	my @loads = ();
-	my $ext = $platform->extent();
-	my $h = $ext->height();
 
-	for my $coord ($platform->coords("O")) {
-		my $load = $h - $coord->row();
+	my ($xs, $ys) = $platform->xy("O");
+	my $height = $platform->y_max() + 1;
+
+	for my $i (0..$#{$xs}) {
+		my $load = $height - $ys->[$i];
 		push(@loads, $load);
 	}
 
@@ -117,17 +122,26 @@ sub measure_total_load($platform) {
 }
 
 sub roll_rocks($platform, $dir) {
-	my $ext = $platform->extent();
+	my $x_max = $platform->x_max();
+	my $y_max = $platform->y_max();
+	my @off = xy_offset($dir);
+
 	my $move_count = 1;
 	while ($move_count > 0) {
 		$move_count = 0;
-		for my $coord ($platform->coords("O")) {
-			my $n = $coord->offset($dir);
-			while ($ext->contains($n) and $platform->get($n) eq ".") {
-				$platform->set($coord, ".");
-				$platform->set($n, "O");
-				$coord = $n;
-				$n = $coord->offset($dir);
+		my ($xs, $ys) = $platform->xy("O");
+		for my $i (0..$#{$xs}) {
+			my $x = $xs->[$i];
+			my $y = $ys->[$i];
+			my @xy_n = ($x + $off[0], $y + $off[1]);
+			while ($xy_n[0] >= 0 && $xy_n[0] <= $x_max &&
+					$xy_n[1] >= 0 && $xy_n[1] <= $x_max and
+					$platform->get_xy(@xy_n) eq ".") {
+				$platform->set_xy($x, $y, ".");
+				$platform->set_xy(@xy_n, "O");
+				$x = $xy_n[0];
+				$y = $xy_n[1];
+				@xy_n = ($x + $off[0], $y + $off[1]);
 				$move_count++;
 			}
 		}

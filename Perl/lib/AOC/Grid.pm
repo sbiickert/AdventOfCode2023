@@ -12,13 +12,13 @@ use AOC::Geometry;
 
 our @ISA = qw( Exporter );
 #our @EXPORT_OK = qw(g2_make);
-our @EXPORT = qw( g2_make );
+our @EXPORT = qw( g2_make g2a_make );
 
 
 # -------------------------------------------------------
 # Grid2D
 #
-# Data model: array reference [data hashref, default, rule, extent]
+# Data model: hashref
 # -------------------------------------------------------
 class Grid2D {
 	field %data = ();
@@ -191,6 +191,195 @@ class Grid2D {
 
 
 # -------------------------------------------------------
+# Grid2Da
+#
+# Data model: data 2D array
+# -------------------------------------------------------
+class Grid2Da {
+	field @data = ();
+	field $default :reader :param = '.';
+	field $rule :reader :param = ::ROOK(); # from AOC::Geometry
+	field $x_max :reader :param;
+	field $y_max :reader :param;
+
+	ADJUST {
+		if ( !grep( /^$rule$/, (::ROOK(), ::BISHOP(), ::QUEEN()) ) ) {
+			say "$rule is not a valid adjacency rule. Defaulting to ROOK().";
+			$rule = ::ROOK();
+		}
+		for my $y (0..$y_max) {
+			my @row = ($default) x ($x_max+1);
+			push(@data, \@row);
+		}
+	}
+
+	method extent() {
+		return e2_make(::c2_origin, c2_make($x_max, $y_max));
+	}
+
+	method get($coord) {
+		if (::c2_is_valid($coord)) {
+			return $self->getXY($coord->X(), $coord->Y());
+		}
+		return $default;
+	}
+
+	method get_xy($x, $y) {
+		if ($x >= 0 && $x <= $x_max &&
+			$y >= 0 && $y <= $y_max) {
+			return $data[$y][$x];
+		}
+		return $default;
+	}
+
+	method get_scalar($coord) {
+		if (::c2_is_valid($coord)) {
+			return get_scalar_xy($coord->X(), $coord->Y());
+		}
+		return $default;
+	}
+
+	method get_scalar_xy($x, $y) {
+		my $val = $self->get_xy($x, $y);
+		my $r = ref $val;
+		if ($r eq "") {
+			return $val;
+		}
+		if ($r eq "ARRAY") {
+			# Return item in [0]
+			return $val->[0];
+		}
+		elsif ($r eq "HASH") {
+			# Return item in {"glyph"}
+			return $val->{"glyph"};
+		}
+		return $val->glyph(); # For blessed objects
+	}
+
+	method set($coord, $value) {
+		if (!::c2_is_valid($coord)) { say "Invalid coord passed to Grid2Da::set"; return; }
+		$self->set_xy($coord->X(), $coord->Y(), $value);
+	}
+
+	method set_xy($x, $y, $value) {
+		if ($x >= 0 && $x <= $x_max && $y >= 0 && $y <= $y_max) {
+			$data[$y][$x] = $value;
+		}
+		else {
+			say "Out of bounds coord passed to Grid2Da::set_xy";
+		}
+	}
+
+	method clear($coord) {
+		if (::c2_is_valid($coord)) {
+			$self->clear_xy($coord->X(), $coord->Y());
+		}
+	}
+
+	method clear_xy($x, $y) {
+		$self->set_xy($x, $y, $default);
+	}
+
+	method coords($with_val = undef) {
+		my @coords = ();
+		for my $y (0..$y_max) {
+			for my $x (0..$x_max) {
+				if (!defined($with_val) || $data[$y][$x] eq $with_val) {
+					push( @coords, c2_make($x, $y));
+				}
+			}
+		}
+		return @coords;
+	}
+
+	method xy($with_val = undef) {
+		my @x = (); my @y = ();
+		for my $y (0..$y_max) {
+			for my $x (0..$x_max) {
+				if (!defined($with_val) || $data[$y][$x] eq $with_val) {
+					push( @x, $x );
+					push( @y, $y );
+				}
+			}
+		}
+		return (\@x, \@y);
+	}
+
+	method histogram($include_unset = 0) {
+		my $hist = {};
+		my ($xs, $ys) = $self->xy();
+		for my $i (0..$#{$xs}) {
+			my $val = $self->get_scalar_xy($xs->[$i], $ys->[$i]);
+			if ($include_unset || $val ne $default) {
+				$hist->{$val} ++;
+			}
+		}
+		return $hist;
+	}
+
+	method neighbors($coord) {
+		if (!::c2_is_valid($coord)) { return (); }
+		return $coord->get_adjacent_coords($rule);
+	}
+
+	method neighbors_xy($x, $y) {
+		my @neighbors_x = ();
+		my @neighbors_y = ();
+		if ($x >= 0 && $x <= $x_max && $y >= 0 && $y <= $y_max) {
+			my @offsets = xy_offsets($rule);
+			for my $off (@offsets) {
+				push(@neighbors_x, $x + $off->[0]);
+				push(@neighbors_y, $y + $off->[1]);
+			}
+		}
+		return (\@neighbors_x, \@neighbors_y);
+	}
+
+	method flood_fill($coord, $val) {}
+
+	method flood_fill_xy($x, $y, $val) {}
+
+	method print($markers = 0, $invert_y = 0) {
+		print($self->to_str($markers, $invert_y));
+	}
+
+	method to_str($markers=0, $invert_y=0) {
+		my $str = "";
+
+		my @indexes = ();
+		for my $r ( 0..$y_max ) { push(@indexes, $r); }
+		if ($invert_y) { @indexes = reverse(@indexes); }
+
+		for my $y (@indexes) {
+			my @row = ();
+			for my $x (0..$x_max) {
+				my $glyph = $self->get_scalar_xy($x, $y);
+# 				if ($markers && defined $markers->{$c->to_str()}) {
+# 					$glyph = $markers->{$c->to_str()};
+# 				}
+				push( @row, $glyph );
+			}
+			push (@row, "\n");
+			$str .= join(' ', @row);
+		}
+		return $str;
+	}
+
+	method load(@rows) {
+		use List::Util 'min';
+		my $max_row = min($y_max, $#rows);
+		for my $r (0..$max_row) {
+			my $max_col = min($x_max, length($rows[0])-1);
+			for my $c (0..$max_col) {
+				my $char = substr($rows[$r], $c, 1);
+				$self->set_xy($c, $r, $char);
+			}
+		}
+	}
+}
+
+
+# -------------------------------------------------------
 # Functions
 #   have to be below all class definitions
 # -------------------------------------------------------
@@ -199,5 +388,12 @@ class Grid2D {
 sub g2_make($default = '.', $adj_rule = ::ROOK()) {
 	return Grid2D->new(rule => $adj_rule, default => $default);
 }
+
+
+sub g2a_make($x_size, $y_size, $default = '.', $adj_rule = ::ROOK()) {
+	return Grid2Da->new(x_max => $x_size, y_max => $y_size,
+						rule => $adj_rule, default => $default);
+}
+
 
 1;

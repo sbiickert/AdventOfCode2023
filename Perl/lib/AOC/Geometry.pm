@@ -16,6 +16,7 @@ our @ISA = qw( Exporter );
 our @EXPORT = qw(
 	ROOK BISHOP QUEEN
 	c2_make c2_from_str c2_origin c2_is_valid
+	xy_offset xy_offsets
 	d2_from_alias d2_for_rule d2_turn d2_opposite
 	p2_make
 	e1_make e1_is_valid
@@ -459,6 +460,29 @@ sub c2_origin() {
 
 sub c2_is_valid($c) {
 	return Coord2D::valid($c);
+}
+
+sub xy_offset($dir_str) {
+	my $off;
+	my $resolved = ::d2_from_alias($dir_str);
+	if (exists $OFFSET_DIRS{$resolved}) {
+		$off = $OFFSET_DIRS{$resolved};
+	}
+	else {
+		$off = ::c2_origin();
+	}
+	return ($off->X(), $off->Y());
+}
+
+sub xy_offsets($rule = $ROOK) {
+	my @result = ();
+	if (exists $ADJACENCY_RULES{$rule}) {
+		for my $dir (@{$ADJACENCY_RULES{$rule}}) {
+			my @xy = xy_offset($dir);
+			push(@result, \@xy);
+		}
+	}
+	return @result;
 }
 
 sub d2_from_alias($dir) {

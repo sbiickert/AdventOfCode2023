@@ -4,3 +4,4 @@ Perl/.pls-tmp-*
 PHP/vendor
 Input/*challenge*
 Swift/Playgrounds/Advent of Code 2023.swiftpm/Resources/*challenge*
+/Perl/nytprof
