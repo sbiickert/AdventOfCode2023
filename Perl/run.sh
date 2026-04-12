@@ -13,6 +13,6 @@
 # perl day11.pl challenge
 # perl day12.pl challenge
 # perl day13.pl challenge
-perl day14.pl test
+# perl day14.pl challenge
 
 

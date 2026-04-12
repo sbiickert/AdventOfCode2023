@@ -32,7 +32,6 @@ sub solve_part_one(@input) {
 
 	roll_rocks($platform, "N");
 	my $total = measure_total_load($platform);
-# 	$platform->print();
 
 	say "Part One: the total load on the north is $total.";
 }
@@ -54,33 +53,33 @@ sub spin_cycle($platform) {
 	my $limit = 1000000000;
 	my $start_of_cycle = 0;
 	for my $i (1..$limit) {
+		say $i if $i % 5 == 0;
 		roll_rocks($platform, "N");
 		roll_rocks($platform, "W");
 		roll_rocks($platform, "S");
 		roll_rocks($platform, "E");
-# 		$platform->print();
-# 		say "";
 		my $load = measure_total_load($platform);
 		push(@loads, $load);
+
+		# Keep track of #times we've seen the load value
 		$load_indexes{$load} = [] if !defined($load_indexes{$load});
 		push(@{$load_indexes{$load}}, $i);
+
+		# Need to wait for more duplicates for test
 		my $start_after = $platform->y_max() < 20 ? 4 : 2;
 		if (scalar @{$load_indexes{$load}} > $start_after) {
 			$cycle = find_cycle(\@loads);
 		}
-		say $i; # . " " . join(',', @loads);
+
 		if ( $cycle > 0 ) {
-			say "found cycle of $cycle after $i spins.";
-			say join(',', @loads);
+			# say "found cycle of $cycle after $i spins.";
 			$start_of_cycle = $i;
 			last;
 		}
 	}
 
 	my $remainder = ($limit - $start_of_cycle) % $cycle;
-# 	say "$remainder = ($limit - $start_of_cycle) % $cycle";
 	my $idx = $#loads - $cycle + $remainder;
-# 	say "$idx = $#loads - $cycle + $remainder";
 	return $loads[$idx];
 }
 
@@ -93,7 +92,6 @@ sub find_cycle($loads_ref) {
 			my $off = 1;
 			my $i = $ptr - $off; my $j = $#loads - $off;
 			while ($i >= 0 and $loads[$i] == $loads[$j]) {
-
 				$off++;
 				$i = $ptr - $off; $j = $#loads - $off;
 			}
