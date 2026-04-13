@@ -214,12 +214,12 @@ class Grid2Da {
 	}
 
 	method extent() {
-		return e2_make(::c2_origin, c2_make($x_max, $y_max));
+		return ::e2_make(::c2_origin, ::c2_make($x_max, $y_max));
 	}
 
 	method get($coord) {
 		if (::c2_is_valid($coord)) {
-			return $self->getXY($coord->X(), $coord->Y());
+			return $self->get_xy($coord->X(), $coord->Y());
 		}
 		return $default;
 	}
