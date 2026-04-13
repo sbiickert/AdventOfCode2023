@@ -9,7 +9,7 @@ use lib $directory . '/lib';
 
 use feature 'signatures';
 #use Data::Printer;
-#use Storable 'dclone';
+use List::Util 'max';
 
 use AOC::Util;
 use AOC::Geometry;
@@ -27,12 +27,43 @@ my $grid = g2_make();
 $grid->load(@input);
 
 solve_part_one($grid);
-#solve_part_two(@input);
+solve_part_two($grid);
 
 exit( 0 );
 
 sub solve_part_one($grid) {
-	my @beams = (p2_make( c2_origin, "E"));
+	my $beam = (p2_make( c2_origin, "E"));
+	my $energized_count = count_energized_squares($grid, $beam);
+	say "Part One: the total number of energized squares is $energized_count.";
+}
+
+sub solve_part_two($grid) {
+	my @counts = ();
+
+	my $ext = $grid->extent();
+	my $xmax = $ext->se()->X();
+	my $ymax = $ext->se()->Y();
+
+	for my $col (0..$xmax) {
+		my $north_edge_beam = p2_make( c2_make( $col, 0 ), "S");
+		push(@counts, count_energized_squares($grid, $north_edge_beam));
+		my $south_edge_beam = p2_make( c2_make( $col, $ymax ), "N");
+		push(@counts, count_energized_squares($grid, $south_edge_beam));
+	}
+
+	for my $row (0..$ymax) {
+		my $west_edge_beam = p2_make( c2_make( 0, $row ), "E");
+		push(@counts, count_energized_squares($grid, $west_edge_beam));
+		my $east_edge_beam = p2_make( c2_make( $xmax, $row ), "W");
+		push(@counts, count_energized_squares($grid, $east_edge_beam));
+	}
+
+	my $max = max @counts;
+	say "Part Two: the maximum number of energized squares is $max.";
+}
+
+sub count_energized_squares($grid, $beam) {
+	my @beams = ($beam);
 	my %energized = ();
 	my %memo = ();
 	my $ext = $grid->extent();
@@ -56,13 +87,7 @@ sub solve_part_one($grid) {
 		@beams = @moved_beams;
 	}
 	my $energized_count = scalar %energized;
-
-	say "Part One: the total number of energized squares is $energized_count.";
-}
-
-sub solve_part_two(@input) {
-
-	say "Part Two: ";
+	return $energized_count;
 }
 
 sub move_beam($beam, $grid) {
