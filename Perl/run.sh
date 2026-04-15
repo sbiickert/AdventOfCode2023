@@ -15,4 +15,5 @@
 # perl day13.pl challenge
 # perl day14.pl challenge
 # perl day15.pl challenge
-perl day16.pl challenge
+# perl day16.pl challenge
+perl day17.pl test

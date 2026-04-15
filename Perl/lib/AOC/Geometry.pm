@@ -157,17 +157,19 @@ class Position {
 	}
 
 	method turn($rot_str) {
+		my $new_dir = Position->turn_str($rot_str, $dir);
+		return Position->new(coord => $coord->clone(), dir => $new_dir);
+	}
+
+	sub turn_str($cls, $rot_str, $dir) {
 		my $step = 0;
 		$step = 1 if first { $_ eq $rot_str } ('CW', 'RIGHT', 'R');
 		$step = -1 if first { $_ eq $rot_str } ('CCW', 'LEFT', 'L');
 		my @ordered = @{$ADJACENCY_RULES{$ROOK}}; # ('N', 'E', 'S', 'W');
 		my $index = List::Util::first { $ordered[$_] eq $dir } 0..$#ordered;
-		if ($index < 0) {
-			# Direction isn't one of NESW
-			return Position->new(coord => $coord->clone(), dir => $dir);
-		}
+		return $dir if $index < 0; # Direction isn't one of NESW
 		$index = ($index + $step) % 4;
-		return Position->new(coord => $coord->clone(), dir => $ordered[$index]);
+		return $ordered[$index];
 	}
 
 	method move_forward($distance = 1) {
