@@ -285,7 +285,7 @@ class Grid2Da {
 		for my $y (0..$y_max) {
 			for my $x (0..$x_max) {
 				if (!defined($with_val) || $data[$y][$x] eq $with_val) {
-					push( @coords, c2_make($x, $y));
+					push( @coords, ::c2_make($x, $y));
 				}
 			}
 		}
@@ -354,9 +354,10 @@ class Grid2Da {
 			my @row = ();
 			for my $x (0..$x_max) {
 				my $glyph = $self->get_scalar_xy($x, $y);
-# 				if ($markers && defined $markers->{$c->to_str()}) {
-# 					$glyph = $markers->{$c->to_str()};
-# 				}
+				my $c = ::c2_make($x, $y);
+				if ($markers && defined $markers->{$c->to_str()}) {
+					$glyph = $markers->{$c->to_str()};
+				}
 				push( @row, $glyph );
 			}
 			push (@row, "\n");
