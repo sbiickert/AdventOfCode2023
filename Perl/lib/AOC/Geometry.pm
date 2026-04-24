@@ -33,7 +33,8 @@ our %OFFSET_DIRS = ('N' 	=> Coord2D->new(col => 0, row => -1),
 					'NW' 	=> Coord2D->new(col =>-1, row =>-1));
 
 our %OFFSET_ALIASES = ('UP'	=> 'N', 'RIGHT' => 'E', 'DOWN' 	=> 'S', 'LEFT' 	=> 'W',
-						'^' => 'N', '>' => 'E', 'v' => 'S', '<' => 'W');
+						'^' => 'N', '>' => 'E', 'v' => 'S', '<' => 'W',
+						'U' => 'N', 'R' => 'E', 'D' => 'S', 'L' => 'W',);
 
 # These are exposed through ROOK(), BISHOP(), QUEEN() below
 my $ROOK = 'ROOK';
