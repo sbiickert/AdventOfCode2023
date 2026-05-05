@@ -9,7 +9,7 @@ use lib $directory . '/lib';
 
 use feature 'signatures';
 use Data::Printer;
-use List::Util 'sum';
+use List::Util qw( sum product );
 
 use AOC::Util;
 
@@ -25,7 +25,7 @@ my %workflows = parse_workflows(@{$inputs[0]});
 my @parts = parse_parts(@{$inputs[1]});
 
 solve_part_one();
-#solve_part_two(@input);
+solve_part_two();
 
 exit( 0 );
 
@@ -47,9 +47,48 @@ sub solve_part_one() {
 	say "Part One: the sum of ratings of the accepted parts is $total.";
 }
 
-sub solve_part_two(@input) {
+sub solve_part_two() {
+	my @all_accept_nodes = ();
+	my $tree;
+	$tree = WFTreeNode->build_tree($workflows{'in'}, $tree, \@all_accept_nodes);
 
-	say "Part Two: ";
+	my $sum = 0;
+	for my $node (@all_accept_nodes) {
+		my $ptr = $node;
+		my $negate_next = 0;
+		my @conditions = ();
+
+		while (defined $ptr) {
+			my $cond = $ptr->condition();
+			if (defined $cond) {
+				if ($negate_next) {
+					$cond = $cond->negated();
+					$negate_next = 0;
+				}
+				push(@conditions, $cond);
+# 				say $ptr->name() . ': ' . $cond->to_str();
+			}
+
+			my $is_left_child = !(defined $ptr->parent() ) ||
+								 $ptr->name() eq $ptr->parent()->child_L()->name();
+			if (!$is_left_child) {
+				$negate_next = 1;
+			}
+
+			$ptr = $ptr->parent();
+		}
+
+		my %summary_by_letter = ("x" => 4000, "m" => 4000, "a" => 4000, "s" => 4000);
+		for my $key ('x', 'm', 'a', 's') {
+			$summary_by_letter{$key} = WorkflowCondition->combine(grep {$_->key() eq $key} @conditions);
+		}
+# 		say join(', ', map {$_ . ': ' . $summary_by_letter{$_}} ('x', 'm', 'a', 's'));
+
+		my $p = product(values %summary_by_letter);
+# 		say $p;
+		$sum += $p;
+	}
+	say "Part Two: the total number of possible combinations is $sum.";
 }
 
 sub parse_workflows(@input) {
@@ -99,7 +138,7 @@ class WorkflowCondition {
 	field $value :reader;
 
 	ADJUST {
-		if ($src =~ m/([xmas])([<>])(\d+)/) {
+		if ($src =~ m/([xmas])([<>=]+)(\d+)/) {
 			$key = $1;
 			$relation = $2;
 			$value = $3;
@@ -126,6 +165,10 @@ class WorkflowCondition {
 		if ($relation eq '>') { $opposite = '<=' }
 		if ($relation eq '>=') { $opposite = '<' }
 		return WorkflowCondition->new(src => "$key$opposite$value");
+	}
+
+	method to_str() {
+		return "$key$relation$value";
 	}
 
 	sub combine($cls, @conditions) {
@@ -168,6 +211,11 @@ class WorkflowRule {
 		}
 	}
 
+	method to_str() {
+		return $condition->to_str() . ":" . $target if defined $condition;
+		return $target;
+	}
+
 	method evaluate($wms) {
 		if (defined $condition) {
 			return $target if $condition->evaluate($wms->value($condition->key()));
@@ -199,5 +247,50 @@ class Workflow {
 			my $result = $rule->evaluate($wms);
 			return $result if $result ne '';
 		}
+	}
+
+	method split() {
+		my @r = @{$rules};
+		my $first_rule = $r[0];
+		my $remainder;
+		if (scalar @r > 1) {
+			my @other_rules = @r[1..$#r];
+			my $n = $name . 'X';
+			my @other_rules_str = map {$_->to_str()} @other_rules;
+			my $rule_str = join(',', @other_rules_str);
+			$remainder = Workflow->new(src => $n . "{$rule_str}");
+		}
+
+		return ($first_rule, $remainder);
+	}
+}
+
+class WFTreeNode {
+	field $parent :reader :writer;
+	field $child_L :reader :writer;
+	field $child_R :reader :writer;
+	field $name :reader :writer;
+	field $condition :reader :writer;
+
+	sub build_tree($cls, $workflow, $parent, $inout_a_nodes) {
+		my $node = WFTreeNode->new();
+		$node->set_parent($parent);
+		$node->set_name($workflow->name());
+		my ($rule, $remainder) = $workflow->split();
+		$node->set_condition($rule->condition());
+		if ($rule->target() eq 'A' || $rule->target() eq 'R') {
+			my $leaf = WFTreeNode->new();
+			$leaf->set_name($rule->target());
+			$leaf->set_parent($node);
+			$node->set_child_L($leaf);
+			push(@{$inout_a_nodes}, $leaf) if $rule->target() eq 'A';
+		}
+		else {
+			$node->set_child_L(WFTreeNode->build_tree($workflows{$rule->target()}, $node, $inout_a_nodes));
+		}
+		if (defined $remainder) {
+			$node->set_child_R(WFTreeNode->build_tree($remainder, $node, $inout_a_nodes));
+		}
+		return $node;
 	}
 }
