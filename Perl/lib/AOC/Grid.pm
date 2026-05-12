@@ -180,7 +180,7 @@ class Grid2D {
 		for my $r (0..$#rows) {
 			my $max_col = length($rows[0])-1;
 			for my $c (0..$max_col) {
-				my $char = substr($rows[$r], $c, 1);
+				my $char = substr($rows[$r], $c, 1) or die "$r, $c";
 				if ($char ne $default) {
 					$self->set(::c2_make($c, $r), $char);
 				}
