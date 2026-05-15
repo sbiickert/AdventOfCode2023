@@ -16,11 +16,13 @@ our @ISA = qw( Exporter );
 our @EXPORT = qw(
 	ROOK BISHOP QUEEN
 	c2_make c2_from_str c2_origin c2_is_valid
+	c3_make c3_from_str c3_origin c3_is_valid
 	xy_offset xy_offsets
 	d2_from_alias d2_for_rule d2_turn d2_opposite
 	p2_make
 	e1_make e1_is_valid
 	e2_make e2_from_ints e2_is_valid
+	e3_make e3_from_ints e3_is_valid
 );
 
 our %OFFSET_DIRS = ('N' 	=> Coord2D->new(col => 0, row => -1),
@@ -31,6 +33,32 @@ our %OFFSET_DIRS = ('N' 	=> Coord2D->new(col => 0, row => -1),
 					'SW' 	=> Coord2D->new(col =>-1, row => 1),
 					'W' 	=> Coord2D->new(col =>-1, row => 0),
 					'NW' 	=> Coord2D->new(col =>-1, row =>-1));
+our %OFFSET_DIRS_3D = ('N' 	=> c3_make( 0,-1, 0),
+						'NE' 	=> c3_make( 1,-1, 0),
+						'E' 	=> c3_make( 1, 0, 0),
+						'SE' 	=> c3_make( 1, 1, 0),
+						'S' 	=> c3_make( 0, 1, 0),
+						'SW' 	=> c3_make(-1, 1, 0),
+						'W' 	=> c3_make(-1, 0, 0),
+						'NW' 	=> c3_make(-1,-1, 0),
+						'U' 	=> c3_make( 0, 0, 1),
+						'NU' 	=> c3_make( 0,-1, 1),
+						'NEU' 	=> c3_make( 1,-1, 1),
+						'EU' 	=> c3_make( 1, 0, 1),
+						'SEU' 	=> c3_make( 1, 1, 1),
+						'SU' 	=> c3_make( 0, 1, 1),
+						'SWU' 	=> c3_make(-1, 1, 1),
+						'WU' 	=> c3_make(-1, 0, 1),
+						'NWU' 	=> c3_make(-1,-1, 1),
+						'D' 	=> c3_make( 0, 0,-1),
+						'ND' 	=> c3_make( 0,-1,-1),
+						'NED' 	=> c3_make( 1,-1,-1),
+						'ED' 	=> c3_make( 1, 0,-1),
+						'SED' 	=> c3_make( 1, 1,-1),
+						'SD' 	=> c3_make( 0, 1,-1),
+						'SWD' 	=> c3_make(-1, 1,-1),
+						'WD' 	=> c3_make(-1, 0,-1),
+						'NWD' 	=> c3_make(-1,-1,-1));
 
 our %OFFSET_ALIASES = ('UP'	=> 'N', 'RIGHT' => 'E', 'DOWN' 	=> 'S', 'LEFT' 	=> 'W',
 						'^' => 'N', '>' => 'E', 'v' => 'S', '<' => 'W',
@@ -43,6 +71,11 @@ my $QUEEN = 'QUEEN';
 my %ADJACENCY_RULES = ('ROOK'    => ['N','E','S','W'],
 						'BISHOP' => ['NE','SE','SW','NW'],
 						'QUEEN'  => ['N','NE','E','SE','S','SW','W','NW']);
+my %ADJACENCY_RULES_3D = ('ROOK'    => ['N','E','S','W','U','D'],
+						  'BISHOP' => ['NEU','SEU','SWU','NWU','NED','SED','SWD','NWD'],
+						  'QUEEN'  => ['N','NE','E','SE','S','SW','W','NW',
+						  			   'NU','NEU','EU','SEU','SU','SWU','WU','NWU','U',
+						  			   'ND','NED','ED','SED','SD','SWD','WD','NWD','D']);
 
 # -------------------------------------------------------
 # Coord2D
@@ -134,6 +167,93 @@ class Coord2D {
 	}
 }
 
+# -------------------------------------------------------
+# Coord3D
+#
+# Three-dimensional coordinate class
+# -------------------------------------------------------
+class Coord3D {
+	field $col :param :reader;
+	field $row :param :reader;
+	field $ht :param :reader;
+
+	method X() { return $col; }
+	method Y() { return $row; }
+	method Z() { return $ht; }
+
+	method add($other_coord) {
+		return ::c3_make( $col + $other_coord->col(),
+						  $row + $other_coord->row(),
+						  $ht + $other_coord->ht() );
+	}
+
+	method equals($other_coord) {
+		return $col == $other_coord->col() &&
+				$row == $other_coord->row() &&
+				$ht == $other_coord->ht();
+	}
+
+	method delta($other_coord) {
+		return ::c3_make( $other_coord->col() - $col,
+						  $other_coord->row() - $row,
+						  $other_coord->ht() - $ht );
+	}
+
+	method is_adjacent($other_coord, $rule = $ROOK) {
+		if ($rule eq $ROOK) {
+			return $self->manhattan($other_coord) == 1;
+		}
+		elsif ($rule eq $BISHOP) {
+			return abs($col - $other_coord->col()) == 1 &&
+					abs($row - $other_coord->row()) == 1 &&
+					abs($ht - $other_coord->ht()) == 1;
+		}
+		#QUEEN
+		return ($self->manhattan($other_coord) == 1) ||
+				(abs($col - $other_coord->col()) == 1 &&
+				 abs($row - $other_coord->row()) == 1 &&
+				 abs($ht - $other_coord->ht()) == 1);
+	}
+
+	method get_adjacent_coords($rule = $ROOK) {
+		my @result = ();
+		if (exists $ADJACENCY_RULES_3D{$rule}) {
+			for my $dir (@{$ADJACENCY_RULES_3D{$rule}}) {
+				push(@result, $self->offset($dir));
+			}
+		}
+		return @result;
+	}
+
+	method distance($other_coord) {
+		my $delta = $self->delta($other_coord);
+		return sqrt($delta->col()**2 + $delta->row()**2 + $delta->ht()**2);
+	}
+
+	method manhattan($other_coord) {
+		return abs($other_coord->col() - $col)
+			 + abs($other_coord->row() - $row)
+			 + abs($other_coord->ht() - $ht);
+	}
+
+	method coord2D() {
+		return Coord2D->new(col => $col, row => $row);
+	}
+
+	method clone() {
+		return Coord3D->new(col => $col, row => $row, ht => $ht);
+	}
+
+	method to_str {
+		return "[$col,$row,$ht]";
+	}
+
+	sub valid($var) {
+		use Scalar::Util qw(reftype blessed);
+		return (reftype($var) && reftype($var) eq 'OBJECT' && blessed($var) eq 'Coord3D');
+	}
+
+}
 
 # -------------------------------------------------------
 # Position
@@ -302,6 +422,11 @@ class Extent2D {
 	method ne() { return ::c2_make($_max->X(), $_min->Y()); }
 	method sw() { return ::c2_make($_min->X(), $_max->Y()); }
 
+	method xmin() { return $_min->X() }
+	method xmax() { return $_max->X() }
+	method ymin() { return $_min->Y() }
+	method ymax() { return $_max->Y() }
+
 	method equals($other) {
 		if (!Extent2D::valid($other)) { return 0; }
 		return $_min->equals($other->nw()) && $_max->equals($other->se());
@@ -345,8 +470,6 @@ class Extent2D {
 		}
 		return @coords;
 	}
-
-
 
 	method contains($coord) {
 		# A Coord2D
@@ -438,6 +561,115 @@ class Extent2D {
 
 
 # -------------------------------------------------------
+# Extent3D
+#
+# Three-dimensional extent
+# -------------------------------------------------------
+class Extent3D {
+	field $_min :param(min);
+	field $_max :param(max);
+
+	ADJUST {
+		# Because the constructor is protected by scope, and e2_make makes sure
+		# that the min and max are actually the min and max, not going to put
+		# any sanity code here.
+	}
+
+	method nwd() { return $_min; }
+	method ned() { return ::c3_make($_max->X(), $_min->Y(), $_min->Z()) }
+	method swd() { return ::c3_make($_min->X(), $_max->Y(), $_min->Z()) }
+	method sed() { return ::c3_make($_max->X(), $_max->Y(), $_min->Z()) }
+
+	method seu() { return $_max; }
+	method neu() { return ::c3_make($_max->X(), $_min->Y(), $_max->Z()) }
+	method swu() { return ::c3_make($_min->X(), $_max->Y(), $_max->Z()) }
+	method nwu() { return ::c3_make($_min->X(), $_min->Y(), $_max->Z()) }
+
+	method xmin() { return $_min->X() }
+	method xmax() { return $_max->X() }
+	method ymin() { return $_min->Y() }
+	method ymax() { return $_max->Y() }
+	method zmin() { return $_min->Z() }
+	method zmax() { return $_max->Z() }
+
+
+	method equals($other) {
+		if (!Extent3D::valid($other)) { return 0; }
+		return $_min->equals($other->nwd()) && $_max->equals($other->sed());
+	}
+
+	method width() {
+		return $_max->X() - $_min->X() + 1;
+	}
+
+	method height() {
+		return $_max->Y() - $_min->Y() + 1;
+	}
+
+	method depth() {
+		return $_max->Z() - $_min->Z() + 1;
+	}
+
+	method volume() {
+		return $self->width() * $self->height() * $self->depth();
+	}
+
+	method verticalExtent() {
+		return Extent1D->new(min => $_min->Z(), max => $_max->Z());
+	}
+
+	method extent2D() {
+		return Extent2D->new(min => $_min->coord2D(), max => $_max->coord2D());
+	}
+
+	method contains($coord) {
+		# A Coord3D
+		if (Coord3D::valid($coord)) {
+			return  $_min->X() <= $coord->X() && $coord->X() <= $_max->X() &&
+					$_min->Y() <= $coord->Y() && $coord->Y() <= $_max->Y() &&
+					$_min->Z() <= $coord->Z() && $coord->Z() <= $_max->Z();
+		}
+		return 0;
+	}
+
+	method overlaps($other) {
+		if (!Extent3D::valid($other)) { return 0; }
+		return 1 if $self->intersect($other);
+		return 0;
+	}
+
+	method intersect($other) {
+		use List::Util qw(max min);
+		if (!Extent3D::valid($other)) { return 0; }
+		my $common_min_x = max($_min->X(), $other->nwd()->X());
+		my $common_max_x = min($_max->X(), $other->seu()->X());
+		if ($common_max_x < $common_min_x) { return 0; }
+		my $common_min_y = max($_min->Y(), $other->nwd()->Y());
+		my $common_max_y = min($_max->Y(), $other->seu()->Y());
+		if ($common_max_y < $common_min_y) { return 0; }
+		my $common_min_z = max($_min->Z(), $other->nwd()->Z());
+		my $common_max_z = min($_max->Z(), $other->seu()->Z());
+		if ($common_max_z < $common_min_z) { return 0; }
+
+		return ::e3_make(::c3_make($common_min_x, $common_min_y, $common_min_z),
+						 ::c3_make($common_max_x, $common_max_y, $common_max_z));
+	}
+
+	method clone() {
+		return ::e3_make($_min, $_max);
+	}
+
+	method to_str() {
+		return "{min: ". $_min->to_str() . ", max: " . $_max->to_str() . "}";
+	}
+
+	sub valid($var) {
+		use Scalar::Util qw(reftype blessed);
+		return (reftype($var) && reftype($var) eq 'OBJECT' && blessed($var) eq 'Extent3D');
+	}
+}
+
+# -------------------------------------------------------
 # Functions
 #   have to be below all class definitions
 # -------------------------------------------------------
@@ -463,6 +695,25 @@ sub c2_origin() {
 
 sub c2_is_valid($c) {
 	return Coord2D::valid($c);
+}
+
+sub c3_make($x, $y, $z) {
+	return Coord3D->new(col=>$x, row=>$y, ht=>$z);
+}
+
+sub c3_from_str($val) {
+	if ($val =~ m/\[(-?\d+),(-?\d+),(-?\d+)\]/) {
+		return Coord3D->new(col => $1, row => $2, ht => $3);
+	}
+	return 0;
+}
+
+sub c3_origin() {
+	return c3_make(0,0,0);
+}
+
+sub c3_is_valid($c) {
+	return Coord3D::valid($c);
 }
 
 sub xy_offset($dir_str) {
@@ -549,6 +800,25 @@ sub e2_from_ints($xmin, $ymin, $xmax, $ymax) {
 
 sub e2_is_valid($e2d) {
 	return Extent2D::valid($e2d);
+}
+
+sub e3_make(@coords) {
+	my @x = sort {$a <=> $b} (map { $_->X() } @coords);
+	my @y = sort {$a <=> $b} (map { $_->Y() } @coords);
+	my @z = sort {$a <=> $b} (map { $_->Z() } @coords);
+	my $nwd = ::c3_make($x[0], $y[0], $z[0]);
+	my $seu = ::c3_make($x[-1], $y[-1], $z[-1]);
+	return Extent3D->new(min => $nwd, max => $seu);
+}
+
+sub e3_from_ints($xmin, $ymin, $xmax, $ymax, $zmin, $zmax) {
+	my $nwd = ::c3_make($xmin, $ymin, $zmin);
+	my $seu = ::c3_make($xmax, $ymax, $zmax);
+	return ::e3_make($nwd, $seu); # Don't trust the inputs
+}
+
+sub e3_is_valid($e3d) {
+	return Extent3D::valid($e3d);
 }
 
 
