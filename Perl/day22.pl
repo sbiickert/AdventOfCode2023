@@ -9,7 +9,7 @@ use lib $directory . '/lib';
 
 use feature 'signatures';
 use Data::Printer;
-#use Storable 'dclone';
+use List::Util 'all';
 
 use AOC::Util;
 use AOC::Geometry;
@@ -30,13 +30,14 @@ my ($supporting_ref, $resting_on_ref) = determine_supporting(@settled);
 my %supporting = %{$supporting_ref};
 my %resting_on = %{$resting_on_ref};
 
-solve_part_one();
-#solve_part_two(@input);
+my @nd = solve_part_one();
+solve_part_two(@nd);
 
 exit( 0 );
 
 sub solve_part_one() {
 	my @distintegrateable = ();
+	my @not_distintegrateable = ();
 
 	for my $i (keys %supporting) {
 		my $can_disintegrate = 1;
@@ -47,15 +48,46 @@ sub solve_part_one() {
 				$can_disintegrate = 0;
 			}
 		}
-		push(@distintegrateable, $i) if $can_disintegrate;
+		if ($can_disintegrate) {
+			push(@distintegrateable, $i);
+		}
+		else {
+			push(@not_distintegrateable, $i);
+		}
 	}
 
 	say "Part One: the number of disintegrateable bricks is " . scalar @distintegrateable;
+	return @not_distintegrateable;
 }
 
-sub solve_part_two(@input) {
+sub solve_part_two(@not_distintegrateable) {
+	my $sum = 0;
 
-	say "Part Two: ";
+	for my $i (@not_distintegrateable) {
+		my $d_count = cascade($i);
+		$sum += $d_count;
+	}
+
+	say "Part Two: the sum of all cascading disintegrations is $sum.";
+}
+
+sub cascade($i) {
+	my %disintegrated = ($i => 1);
+	my @next = ();
+	push( @next, @{$supporting{$i}} );
+	while (scalar @next > 0) {
+		my $j = shift(@next);
+		my $can_disintegrate_j = 0;
+		if (scalar @{$resting_on{$j}} == 1) { $can_disintegrate_j = 1 }
+		elsif (all { defined $disintegrated{$_} } @{$resting_on{$j}}) {
+			$can_disintegrate_j = 1
+		}
+		if ($can_disintegrate_j) {
+			$disintegrated{$j} = 1;
+			push(@next, @{$supporting{$j}});
+		}
+	}
+	return (scalar %disintegrated) - 1;
 }
 
 sub determine_supporting(@bricks) {
