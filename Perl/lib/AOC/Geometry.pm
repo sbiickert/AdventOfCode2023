@@ -18,7 +18,7 @@ our @EXPORT = qw(
 	c2_make c2_from_str c2_origin c2_is_valid
 	c3_make c3_from_str c3_origin c3_is_valid
 	xy_offset xy_offsets
-	d2_from_alias d2_for_rule d2_turn d2_opposite
+	d2_from_alias d2_offset d2_for_rule d2_turn d2_opposite d2_to
 	p2_make
 	e1_make e1_is_valid
 	e2_make e2_from_ints e2_is_valid
@@ -293,14 +293,24 @@ class Position {
 		return $ordered[$index];
 	}
 
+	method left_coord() {
+		my $new_dir = Position->turn_str('CCW', $dir);
+		return $coord->offset($new_dir);
+	}
+
+	method forward_coord() {
+		return $coord->offset($dir);
+	}
+
+	method right_coord() {
+		my $new_dir = Position->turn_str('CW', $dir);
+		return $coord->offset($new_dir);
+	}
+
 	method move_forward($distance = 1) {
-		my $move;
-		if (exists $OFFSET_DIRS{$dir}) {
-			my $off = $OFFSET_DIRS{$dir};
-			$move = Coord2D->new( col => $off->col() * $distance,
-								row => $off->row() * $distance );
-		}
-		else { $move = ::c2_origin(); } # zero
+		my $off = ::d2_offset($dir);
+		my $move = Coord2D->new( col => $off->col() * $distance,
+								 row => $off->row() * $distance );
 
 		my $new_coord = $coord->add($move);
 		return Position->new( coord => $new_coord, dir => $dir );
@@ -478,6 +488,11 @@ class Extent2D {
 					$_min->Y() <= $coord->Y() && $coord->Y() <= $_max->Y();
 		}
 		return 0;
+	}
+
+	method contains_xy($x, $y) {
+		return $_min->X() <= $x && $x <= $_max->X() &&
+				$_min->Y() <= $y && $y <= $_max->Y();
 	}
 
 	method overlaps($other) {
@@ -717,14 +732,7 @@ sub c3_is_valid($c) {
 }
 
 sub xy_offset($dir_str) {
-	my $off;
-	my $resolved = ::d2_from_alias($dir_str);
-	if (exists $OFFSET_DIRS{$resolved}) {
-		$off = $OFFSET_DIRS{$resolved};
-	}
-	else {
-		$off = ::c2_origin();
-	}
+	my $off = d2_offset($dir_str);
 	return ($off->X(), $off->Y());
 }
 
@@ -749,6 +757,18 @@ sub d2_from_alias($dir) {
 	return "";
 }
 
+sub d2_offset($dir_str) {
+	my $off;
+	my $resolved = ::d2_from_alias($dir_str);
+	if (exists $OFFSET_DIRS{$resolved}) {
+		$off = $OFFSET_DIRS{$resolved};
+	}
+	else {
+		$off = ::c2_origin();
+	}
+	return $off;
+}
+
 sub d2_for_rule($rule) {
 	if (exists $ADJACENCY_RULES{$rule}) {
 		return @{$ADJACENCY_RULES{$rule}};
@@ -770,6 +790,20 @@ sub d2_opposite($dir) {
 # 	my $idx = first {$dirs[$_] eq $dir} 0..$#dirs;
 # 	my $opp_idx = ($idx + 4) % 8;
 # 	return $dirs[$opp_idx];
+}
+
+sub d2_to($from_coord, $to_coord) {
+	if (c2_is_valid($from_coord) && c2_is_valid($to_coord)) {
+		if 		($from_coord->X() == $to_coord->X() && $from_coord->Y() > $to_coord->Y()) {return 'N'}
+		elsif 	($from_coord->X() == $to_coord->X() && $from_coord->Y() < $to_coord->Y()) {return 'S'}
+		elsif	($from_coord->X() < $to_coord->X() && $from_coord->Y() == $to_coord->Y()) {return 'E'}
+		elsif 	($from_coord->X() > $to_coord->X() && $from_coord->Y() == $to_coord->Y()) {return 'W'}
+		elsif	($from_coord->X() < $to_coord->X() && $from_coord->Y() > $to_coord->Y()) {return 'NE'}
+		elsif 	($from_coord->X() > $to_coord->X() && $from_coord->Y() > $to_coord->Y()) {return 'NW'}
+		elsif	($from_coord->X() < $to_coord->X() && $from_coord->Y() < $to_coord->Y()) {return 'SE'}
+		elsif 	($from_coord->X() > $to_coord->X() && $from_coord->Y() < $to_coord->Y()) {return 'SW'}
+	}
+	return '';
 }
 
 sub p2_make($coord, $dir = 'N') {

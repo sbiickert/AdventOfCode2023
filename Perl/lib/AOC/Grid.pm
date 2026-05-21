@@ -326,7 +326,7 @@ class Grid2Da {
 		my @neighbors_x = ();
 		my @neighbors_y = ();
 		if ($x >= 0 && $x <= $x_max && $y >= 0 && $y <= $y_max) {
-			my @offsets = xy_offsets($rule);
+			my @offsets = ::xy_offsets($rule);
 			for my $off (@offsets) {
 				push(@neighbors_x, $x + $off->[0]);
 				push(@neighbors_y, $y + $off->[1]);
