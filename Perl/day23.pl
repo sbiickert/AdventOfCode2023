@@ -9,7 +9,7 @@ use lib $directory . '/lib';
 
 use feature 'signatures';
 use Data::Printer;
-#use Storable 'dclone';
+use List::Util 'any', 'max';
 
 use AOC::Util;
 use AOC::Geometry;
@@ -32,27 +32,53 @@ my $start = c2_make(1, 0);
 my $end = c2_make($w - 1, $h);
 my %intersections = find_intersections();
 
-# my %overlay = ($start->to_str() => 'S', $end->to_str() => 'E');
-# $map->print(\%overlay);
+my %links = ();
+for my $intersection (values %intersections) {
+	my @temp = get_links($intersection);
+	$links{$intersection->to_str()} = \@temp;
+}
+
+my %memo;
 
 solve_part_one();
-#solve_part_two(@input);
+solve_part_two();
 
 exit( 0 );
 
-sub solve_part_one(@input) {
-	my %links = ();
-	for my $intersection (values %intersections) {
-		my @temp = get_links($intersection);
-		$links{$intersection->to_str()} = \@temp;
-	}
-	p %links;
-	say "Part One: ";
+sub solve_part_one() {
+	%memo = ();
+	my $length = find_longest($start->to_str(), 0, 0, ());
+	say "Part One: the longest path is $length long.";
 }
 
 sub solve_part_two(@input) {
+	%memo = ();
+	my $length = find_longest($start->to_str(), 0, 1, ());
+	say "Part Two: the longest path allowing uphill travel is $length long.";
+}
 
-	say "Part Two: ";
+
+sub find_longest($int_id, $length, $allow_uphill, @path) {
+	return $length if $int_id eq $end->to_str();
+# 	return $memo{$int_id} if defined $memo{$int_id};
+
+	my $longest = 0;
+	for my $link (@{$links{$int_id}}) {
+		# Don't try going uphill if not allowed (pt 1)
+		next if (!$allow_uphill && $link->{'slope'} eq 'up');
+		# Don't return to any previous intersection
+		next if any {$_ eq $link->{'to'}} @path;
+
+		my @new_path = (@path, $link->{'from'});
+		my $l = find_longest($link->{'to'},
+							 $length + $link->{'length'},
+							 $allow_uphill,
+							 @new_path);
+		$longest = max ($longest, $l);
+	}
+
+	$memo{$int_id} = $longest;
+	return $longest;
 }
 
 sub find_intersections() {
@@ -116,5 +142,6 @@ sub get_links($intersection) {
 					'slope' => $slope);
 		push(@links, \%link);
 	}
+	@links = sort {$b->{'length'} <=> $a->{'length'}} @links;
 	return @links;
 }
