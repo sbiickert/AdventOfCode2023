@@ -38,21 +38,17 @@ for my $intersection (values %intersections) {
 	$links{$intersection->to_str()} = \@temp;
 }
 
-my %memo;
-
 solve_part_one();
 solve_part_two();
 
 exit( 0 );
 
 sub solve_part_one() {
-	%memo = ();
 	my $length = find_longest($start->to_str(), 0, 0, ());
 	say "Part One: the longest path is $length long.";
 }
 
 sub solve_part_two(@input) {
-	%memo = ();
 	my $length = find_longest($start->to_str(), 0, 1, ());
 	say "Part Two: the longest path allowing uphill travel is $length long.";
 }
@@ -60,7 +56,6 @@ sub solve_part_two(@input) {
 
 sub find_longest($int_id, $length, $allow_uphill, @path) {
 	return $length if $int_id eq $end->to_str();
-# 	return $memo{$int_id} if defined $memo{$int_id};
 
 	my $longest = 0;
 	for my $link (@{$links{$int_id}}) {
@@ -77,7 +72,6 @@ sub find_longest($int_id, $length, $allow_uphill, @path) {
 		$longest = max ($longest, $l);
 	}
 
-	$memo{$int_id} = $longest;
 	return $longest;
 }
 
